@@ -16,7 +16,7 @@ Sortie (y) : Présence d'une complication ou d'une anomalie (0 ou 1).
 3. Description du dataset idéal 
 Pas de dataset agrégé mais composé de microdonnées individuelles.
 
-A. Les Features :
+A. Les Features  :
 Comportementales :
 - Consommation de tabac (nombre de cigarettes par jour avant et pendant chaque trimestre).
 - Consommation d'alcool (fréquence et quantité).
