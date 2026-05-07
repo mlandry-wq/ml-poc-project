@@ -1,12 +1,9 @@
-"""Student-owned dataset loading contract.
-
-Students must implement ``load_dataset_split`` so that ``scripts/main.py`` can
-evaluate every configured model on the same test split.
-"""
-
 from __future__ import annotations
 
 from typing import Any
+
+import pandas as pd
+from sklearn.model_selection import train_test_split
 
 
 def load_dataset_split() -> tuple[Any, Any, Any, Any]:
@@ -25,6 +22,29 @@ def load_dataset_split() -> tuple[Any, Any, Any, Any]:
     ``pandas.Series`` or ``numpy.ndarray``.
     """
 
-    raise NotImplementedError(
-        "Implement data.load_dataset_split() before running scripts/main.py."
+    # Dataset complet après imputation + scaling + OHE (sans PCA)
+    # Utilisé par les 3 modèles : Logistic Regression, Random Forest, HistGradientBoosting
+    PATH = "/Users/madeleine/Desktop/ml-poc-project/data/process/processed_data_full.csv"
+
+    try:
+        df = pd.read_csv(PATH)
+    except FileNotFoundError:
+        raise FileNotFoundError(
+            f"Le fichier {PATH} est introuvable.\n"
+            "→ Lancez d'abord le notebook Preprocessing.ipynb pour générer les datasets."
+        )
+
+    # Séparation features / cible
+    X = df.drop(columns=["Target_Risk"])
+    y = df["Target_Risk"]
+
+    # Split 80/20 avec stratification impérative (déséquilibre ~9% positifs)
+    X_train, X_test, y_train, y_test = train_test_split(
+        X,
+        y,
+        test_size=0.2,
+        random_state=42,
+        stratify=y,
     )
+
+    return X_train, X_test, y_train, y_test
