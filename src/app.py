@@ -51,6 +51,10 @@ CSS = """
 [data-testid="stAppViewContainer"] { background:#FAF8F5; font-family:'Inter',sans-serif; }
 [data-testid="stSidebar"] { background:#F5EFF8; border-right:1px solid #EDE8E3; }
 [data-testid="stSidebar"] * { font-family:'Inter',sans-serif; }
+[data-testid="collapsedControl"],
+[data-testid="stSidebarCollapsedControl"],
+button[aria-label="Close sidebar"],
+button[aria-label="Open sidebar"] { display:none !important; }
 
 h1 { color:#5C4B6B !important; font-weight:700 !important; letter-spacing:-0.5px; }
 h2 { color:#6B5B78 !important; font-weight:600 !important; }
@@ -540,6 +544,65 @@ def page_eda():
     """)
     st.image(str(PLOTS_DIR / "4_categoriques_vs_risque.png"), use_container_width=True)
 
+    st.markdown('<hr class="soft">', unsafe_allow_html=True)
+
+    # ── 5. Tabac vs risque ───────────────────────────────────────────────────
+    st.subheader("Tabac & comportement maternel")
+    st.markdown("""
+    Ce graphique analyse l'impact du **comportement tabagique** sur le risque NICU.
+    Trois angles sont explorés : la consommation avant grossesse, l'évolution au 1er trimestre,
+    et la persistance au 3e trimestre.
+
+    **Point clé :** la corrélation du tabac avec la cible reste faible (< 0.15) comparée
+    aux variables médicales (éclampsie ×3, grossesse multiple ×10). Le tabac contribue
+    marginalement au modèle, mais reste pertinent comme signal comportemental cumulatif.
+    """)
+    st.image(str(PLOTS_DIR / "3_tabac_vs_risque.png"), use_container_width=True)
+
+    st.markdown('<hr class="soft">', unsafe_allow_html=True)
+
+    # ── 6. Qualité des données ───────────────────────────────────────────────
+    col_mv, col_mv2 = st.columns([1, 1])
+    with col_mv:
+        st.subheader("Valeurs manquantes & sentinelles CDC")
+        st.markdown("""
+        Le CDC n'utilise pas de `NaN` natifs — il encode les non-réponses avec des
+        **codes numériques sentinelles** (`9`, `99`, `99.9`). Sans traitement, ces valeurs
+        seraient interprétées comme de vraies données (ex : 99 cigarettes/jour).
+
+        Ce graphique montre le **taux de valeurs manquantes réel** après identification
+        et neutralisation des sentinelles. La variable `Assurance` et les variables tabac
+        présentent les taux les plus élevés, ce qui justifie l'imputation par la médiane/mode.
+        """)
+        st.image(str(PLOTS_DIR / "0_missing_values.png"), use_container_width=True)
+    with col_mv2:
+        st.subheader("Distribution de la cible")
+        st.markdown("""
+        La distribution de la variable cible confirme le **déséquilibre sévère** :
+        ~91% de cas négatifs (pas d'admission NICU) contre ~9% de positifs.
+
+        Ce ratio est représentatif de la réalité clinique — il ne s'agit pas d'un artefact
+        du dataset. Ce déséquilibre est intentionnellement conservé dans le jeu de test
+        pour évaluer les modèles en conditions réelles.
+        """)
+        st.image(str(PLOTS_DIR / "1_distribution_target.png"), use_container_width=True)
+
+    st.markdown('<hr class="soft">', unsafe_allow_html=True)
+
+    # ── 7. Analyse multivariée ───────────────────────────────────────────────
+    st.subheader("Analyse multivariée")
+    st.markdown("""
+    Ce graphique en matrice de scatter plots visualise les **relations entre paires de variables**,
+    colorées selon l'admission NICU (rose = admis, bleu = non admis).
+
+    **Observation principale :** les deux classes se **mélangent fortement** dans chaque projection —
+    il n'y a pas de séparation linéaire claire entre variables deux à deux. C'est précisément pourquoi
+    un modèle linéaire (Logistic Regression) obtient un recall de seulement 35% : les patterns
+    discriminants se trouvent dans les **interactions à n dimensions**, que seul le Random Forest
+    parvient à capturer efficacement.
+    """)
+    st.image(str(PLOTS_DIR / "6_multivariate.png"), use_container_width=True)
+
 
 # ══════════════════════════════════════════════════════════════════════════════
 # PAGE : FEATURE ENGINEERING
@@ -844,51 +907,93 @@ def page_models():
 
     st.markdown('<hr class="soft">', unsafe_allow_html=True)
 
-    # ── Triptyque Random Forest ──────────────────────────────────────────────
-    st.subheader("Triptyque de performance — Random Forest (modèle retenu)")
+    # ── Comparaison notebook ─────────────────────────────────────────────────
+    st.subheader("Vue d'ensemble — comparaison notebook")
     st.markdown("""
-    Ce graphique en trois parties permet d'évaluer le comportement du Random Forest
-    sous différents angles complémentaires :
-
-    **Matrice de confusion** *(gauche)* : affiche les Vrais Positifs (bébés à risque correctement identifiés),
-    les Faux Négatifs (bébés à risque manqués — ce qu'on cherche à minimiser), les Faux Positifs (fausses alertes)
-    et les Vrais Négatifs. Avec un seuil de 0.16, le modèle privilégie la détection au détriment
-    d'un léger excès de fausses alertes, ce qui est cohérent avec le contexte médical.
-
-    **Courbe Précision-Rappel** *(centre)* : montre le compromis entre précision et recall
-    pour tous les seuils possibles. Plus l'aire sous la courbe est grande, meilleur est le modèle.
-    Elle est préférable à la courbe ROC sur les datasets déséquilibrés.
-
-    **Courbe ROC** *(droite)* : mesure la capacité du modèle à discriminer les deux classes
-    indépendamment du seuil. Une AUC proche de 1 indique une bonne séparation globale.
+    Ce graphique issu du notebook de modélisation présente deux angles complémentaires :
+    à gauche, les **quatre métriques clés** côte à côte pour chaque modèle ; à droite,
+    le **F-beta β=2** seul, qui est la métrique de sélection finale.
+    La lecture combinée des deux panels confirme le Random Forest comme meilleur compromis global.
     """)
-    st.image(str(PLOTS_DIR / "model2_random_forest.png"), use_container_width=True)
+    st.image(str(PLOTS_DIR / "comparaison_modeles.png"), use_container_width=True)
 
     st.markdown('<hr class="soft">', unsafe_allow_html=True)
+
+    # ── Triptyques des 3 modèles ─────────────────────────────────────────────
+    st.subheader("Analyse de performance — les 3 modèles")
+    st.markdown("""
+    Chaque triptyque évalue un modèle sous trois angles : **matrice de confusion** (gauche),
+    **courbe Précision-Rappel** (centre) et **courbe ROC** (droite).
+    Les Faux Négatifs (bébés à risque non détectés) sont mis en évidence en rouge — c'est la case
+    à minimiser en priorité.
+    """)
+
+    tab1, tab2, tab3 = st.tabs([
+        "1 · Régression Logistique — Baseline",
+        "2 · Random Forest ✓ Retenu",
+        "3 · HistGradientBoosting + Optuna",
+    ])
+    with tab1:
+        st.markdown("""
+        <div class="info-box" style="margin-bottom:12px;">
+        Seuil optimisé : <strong>0.10</strong> — Recall : <strong>0.354</strong> — F-beta β=2 : <strong>0.259</strong>
+        </div>
+        """, unsafe_allow_html=True)
+        st.markdown("""
+        La régression logistique trace une **frontière linéaire** dans l'espace PCA(10).
+        Le seuil très bas (0.10) est nécessaire pour capturer une fraction des cas positifs,
+        mais génère de nombreux faux positifs. La courbe ROC et la courbe PR confirment
+        une **discrimination globalement faible** — les classes ne sont pas linéairement séparables.
+        """)
+        st.image(str(PLOTS_DIR / "model1_logistic_regression.png"), use_container_width=True)
+    with tab2:
+        st.markdown("""
+        <div class="info-box green" style="margin-bottom:12px;">
+        Seuil optimisé : <strong>0.16</strong> — Recall : <strong>0.766</strong> — F-beta β=2 : <strong>0.350</strong> ✓ Meilleur
+        </div>
+        """, unsafe_allow_html=True)
+        st.markdown("""
+        Le Random Forest obtient le **meilleur recall** (76.6%) : sur 100 bébés à risque,
+        77 sont détectés. Le seuil de 0.16 est volontairement bas pour maximiser la détection
+        au détriment d'un excès de faux positifs — choix cohérent avec le contexte médical
+        où manquer un vrai cas est le coût le plus grave.
+        """)
+        st.image(str(PLOTS_DIR / "model2_random_forest.png"), use_container_width=True)
+    with tab3:
+        st.markdown("""
+        <div class="info-box" style="margin-bottom:12px;">
+        Seuil optimisé : <strong>0.46</strong> — Recall : <strong>0.698</strong> — F-beta β=2 : <strong>0.337</strong>
+        </div>
+        """, unsafe_allow_html=True)
+        st.markdown("""
+        Le HistGBM présente un recall légèrement inférieur (69.8%) mais un seuil beaucoup
+        plus conservateur (0.46), ce qui réduit les faux positifs. En pratique clinique à
+        **ressources limitées**, ce modèle offrirait un meilleur équilibre détection/coût.
+        La courbe PR montre une aire sous la courbe comparable au Random Forest.
+        """)
+        st.image(str(PLOTS_DIR / "model3_histgbm_optuna.png"), use_container_width=True)
+
+    st.markdown('<hr class="soft">', unsafe_allow_html=True)
+    st.subheader("Visualisations complémentaires")
+    st.markdown(
+        "Deux graphiques additionnels pour approfondir l'analyse : "
+        "la convergence de l'optimisation Optuna et un benchmark rapide de 25 algorithmes."
+    )
     col3, col4 = st.columns(2)
     with col3:
-        st.subheader("Optimisation Optuna — HistGradientBoosting")
+        st.markdown("**Convergence Optuna (HistGBM)**")
         st.markdown("""
         Optuna est un framework d'**optimisation bayésienne des hyperparamètres**.
-        Ce graphique montre l'évolution du score **F-beta β=2** au fil des 25 essais (trials).
-
-        Chaque point représente un jeu d'hyperparamètres testé (learning rate, max depth,
-        min samples leaf…). La courbe en rouge suit le **meilleur score trouvé jusqu'ici**.
-        On voit que la convergence est rapide — la plupart du gain est obtenu dès les
-        10 premiers trials, les suivants affinent marginalement.
+        Ce graphique montre l'évolution du score **F-beta β=2** au fil des 25 essais.
+        La convergence est rapide — la plupart du gain est obtenu dès les 10 premiers trials.
         """)
         st.image(str(PLOTS_DIR / "model3_optuna.png"), use_container_width=True)
     with col4:
-        st.subheader("Benchmark LazyPredict — 25 classifieurs")
+        st.markdown("**Benchmark LazyPredict — 25 classifieurs**")
         st.markdown("""
-        LazyPredict entraîne automatiquement **25 algorithmes de classification différents**
-        sur un sous-échantillon stratifié de 8 000 lignes, sans tuning particulier.
-
-        Ce graphique sert de **référence rapide** : il confirme que le Random Forest
-        et le Gradient Boosting se situent en haut du classement même sans optimisation,
-        ce qui valide la pertinence du choix de ces modèles pour ce problème.
-        Les résultats doivent être interprétés avec prudence — les scores sont calculés
-        sans SMOTE ni tuning de seuil.
+        LazyPredict entraîne automatiquement **25 algorithmes** sur 8 000 lignes sans tuning.
+        Il confirme que Random Forest et Gradient Boosting dominent, ce qui valide le choix
+        de ces deux modèles. Scores sans SMOTE ni seuil optimisé — à interpréter en référence.
         """)
         st.image(str(PLOTS_DIR / "lazypredict_benchmark.png"), use_container_width=True)
 

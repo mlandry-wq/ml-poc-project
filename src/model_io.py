@@ -30,6 +30,12 @@ def load_model(model_path: Path) -> Any:
         return joblib.load(model_path)
 
     if suffix in {".pkl", ".pickle"}:
+        # Try joblib first (models saved with joblib.dump are not plain pickle)
+        try:
+            import joblib
+            return joblib.load(model_path)
+        except Exception:
+            pass
         with model_path.open("rb") as file_handle:
             return pickle.load(file_handle)
 
