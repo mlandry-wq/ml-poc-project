@@ -5,6 +5,7 @@ from typing import Any
 from sklearn.metrics import (
     recall_score,
     f1_score,
+    fbeta_score,
     accuracy_score,
     precision_score,
 )
@@ -30,8 +31,11 @@ def compute_metrics(y_true: Any, y_pred: Any) -> dict[str, float]:
     """
 
     metrics = {
-        # ← PRIORITAIRE : minimiser les Faux Négatifs (bébés à risque non détectés)
+        # PRIORITAIRE : minimiser les Faux Négatifs (bébés à risque non détectés)
         "recall"   : float(recall_score(y_true, y_pred, zero_division=0)),
+
+        # F-beta β=2 : pondère le Recall 2× plus que la Précision (asymétrie médicale FN/FP)
+        "fbeta_2"  : float(fbeta_score(y_true, y_pred, beta=2, zero_division=0)),
 
         # Équilibre Précision / Recall
         "f1_score" : float(f1_score(y_true, y_pred, zero_division=0)),

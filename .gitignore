@@ -313,6 +313,9 @@ http-client.private.env.json
 # Built Visual Studio Code Extensions
 *.vsix
 
+# macOS
+.DS_Store
+
 # PROJECT SPECIFIC EXCLUSIONS ↓
 
 # Exclude logs directory

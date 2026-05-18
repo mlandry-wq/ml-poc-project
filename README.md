@@ -1,238 +1,133 @@
-# ML Project Template
+# NORA — Neonatal Outcome Risk Assessment
 
-This repository is the base template that each student will fork and adapt for the final machine learning proof-of-concept project.
+Modèle de machine learning pour la prédiction du risque d'admission en Unité de Soins Intensifs Néonatals (NICU), développé dans le cadre d'un projet de santé publique.
 
-The template already defines the project structure and the main execution workflow. Your job as a student is to plug your own dataset loading logic, trained models, evaluation metrics, and Streamlit presentation into the fixed contracts described below.
+---
 
-## Repository Structure
+## Description du projet
 
-- `deliverables/`: markdown files containing all assignements
-- `deliverables/assignement1.md`: first assignement due (5 in total)
-- `data/`: raw and processed data files
-- `logs/`: log files generated during execution
-- `models/`: trained machine learning models saved to disk
-- `notebooks/`: Jupyter notebooks for analysis and experimentation
-- `plots/`: generated visualizations
-- `results/`: evaluation outputs, including model comparison tables
-- `scripts/`: executable project scripts
-- `scripts/main.py`: main entry point for evaluating models and launching the app
-- `src/`: project source code
-- `src/config.py`: project paths, model registry, and Streamlit configuration
-- `src/data.py`: student-implemented dataset loading function
-- `src/metrics.py`: student-implemented metric computation function
-- `src/app.py`: fixed Streamlit entry point that students must customize
-- `tests/`: optional tests
-- `.env`: environment variables if your project needs them
+NORA prédit, à partir du profil clinique et comportemental de la mère, la probabilité qu'un nouveau-né soit admis en NICU à la naissance.
 
-## Expected Workflow
+**Données :** échantillon de 99 900 naissances issu de la base **Natality 2018** du CDC (Centers for Disease Control and Prevention, États-Unis).
 
-When you run:
+**Problème ML :** classification binaire — `1` = admission NICU, `0` = pas d'admission. Le déséquilibre de classe (~9% positifs) est géré via SMOTE + `class_weight='balanced'`.
 
-```bash
-python scripts/main.py
-```
+**Pipeline :** données brutes CDC → préprocesseur (imputation + RobustScaler + OHE) → 36 features → PCA(10, ~99% variance) → modèle → probabilité.
 
-the template will do the following:
+**Métrique prioritaire :** Recall (minimiser les faux négatifs — bébés à risque non détectés). F-beta β=2 utilisé pour le tuning de seuil.
 
-1. read the list of trained models from `src/config.py`,
-2. call your dataset loading function from `src/data.py`,
-3. load each serialized model from `models/`,
-4. run predictions on the test split,
-5. call your metric computation function from `src/metrics.py`,
-6. save the results to `results/model_metrics.csv`,
-7. print the metrics in the terminal,
-8. launch the Streamlit app on `localhost`.
+---
 
-## What You Must Update
+## Résultats des modèles
 
-### 1. Register your trained models in `src/config.py`
+| Modèle | Recall | F-beta β=2 | Seuil optimal |
+|---|---|---|---|
+| Logistic Regression (baseline) | 0.354 | 0.259 | 0.10 |
+| **Random Forest + PCA(10)** ✅ | **0.766** | **0.350** | 0.16 |
+| HistGradientBoosting + Optuna | 0.698 | 0.337 | 0.46 |
 
-Replace the example `MODELS` dictionary with your own trained models.
+Le Random Forest est le modèle retenu (meilleur F-beta β=2). Les métriques affichées dans `results/model_metrics.csv` après `python scripts/main.py` utilisent le seuil par défaut 0.50 — elles diffèrent des résultats notebooks qui utilisent les seuils optimisés.
 
-Each entry must define at least:
+---
 
-- `name`
-- `description`
-- `path`
+## Installation
 
-Example:
-
-```python
-MODELS = {
-    "log_reg": {
-        "name": "Logistic Regression",
-        "description": "Baseline classifier with standardized features.",
-        "path": MODELS_DIR / "log_reg.joblib",
-    },
-    "rf": {
-        "name": "Random Forest",
-        "description": "Tree ensemble tuned on the validation split.",
-        "path": MODELS_DIR / "random_forest.pkl",
-    },
-}
-```
-
-Supported model formats are:
-
-- `.joblib`
-- `.pkl`
-- `.pickle`
-
-Each saved object must expose a `.predict(X)` method.
-
-### 2. Implement the dataset loading function in `src/data.py`
-
-The file already exists and must keep this function name and signature:
-
-```python
-def load_dataset_split() -> tuple[Any, Any, Any, Any]:
-```
-
-It must return:
-
-```python
-(X_train, X_test, y_train, y_test)
-```
-
-Constraints:
-
-- `X_train` and `X_test` must be in a format accepted by every model in `MODELS`
-- `y_train` and `y_test` must contain the matching targets
-- `X_test` and `y_test` will be used by `scripts/main.py` for evaluation
-- Typical return types are `pandas.DataFrame`, `pandas.Series`, and/or `numpy.ndarray`
-
-Minimal example:
-
-```python
-import pandas as pd
-from sklearn.model_selection import train_test_split
-
-from config import DATA_DIR
-
-
-def load_dataset_split():
-    df = pd.read_csv(DATA_DIR / "processed_dataset.csv")
-    X = df.drop(columns=["target"])
-    y = df["target"]
-    return train_test_split(X, y, test_size=0.2, random_state=42)
-```
-
-### 3. Implement the metric computation function in `src/metrics.py`
-
-The file already exists and must keep this function name and signature:
-
-```python
-def compute_metrics(y_true: Any, y_pred: Any) -> dict[str, float]:
-```
-
-It must return a dictionary mapping metric names to numeric values.
-
-Example:
-
-```python
-from sklearn.metrics import accuracy_score, f1_score
-
-
-def compute_metrics(y_true, y_pred):
-    return {
-        "accuracy": accuracy_score(y_true, y_pred),
-        "f1": f1_score(y_true, y_pred, average="weighted"),
-    }
-```
-
-Constraints:
-
-- Use the same metric names for all evaluated models
-- Every metric value must be numeric and convertible to `float`
-- The returned dictionary is written directly to `results/model_metrics.csv`
-
-### 4. Customize the Streamlit application in `src/app.py`
-
-The file `src/app.py` is the fixed Streamlit entry point used by `scripts/main.py`.
-
-Keep this function name:
-
-```python
-def build_app() -> None:
-```
-
-You should update the placeholder app to present:
-
-- the business objective,
-- the dataset and key insights,
-- your visualizations,
-- model comparison results,
-- any prediction demo or interactive workflow relevant to your project.
-
-The template app already tries to display `results/model_metrics.csv` if it exists.
-
-## Recommended Student Workflow
-
-1. Fork this repository.
-2. Create and activate your virtual environment.
-3. Install dependencies:
+**Prérequis :** Python 3.10+
 
 ```bash
+# Cloner le dépôt
+git clone <url-du-repo>
+cd ml-poc-project
+
+# Créer et activer l'environnement virtuel
+python -m venv .venv
+source .venv/bin/activate        # macOS / Linux
+# .venv\Scripts\activate         # Windows
+
+# Installer les dépendances
 pip install -r requirements.txt
 ```
 
-The template also reads `project-repo/.env` with `python-dotenv`. By default it contains:
+---
 
-```text
-PYTHONPATH=./src
-```
+## Données et modèles
 
-This is used when `scripts/main.py` launches Streamlit so modules inside `src/` resolve as top-level imports such as `from config import ...` or `from app import build_app`.
+Les fichiers de données et certains modèles ne sont pas inclus dans le dépôt (trop volumineux).
 
-4. Add your data files to `data/`.
-5. Train and save your models into `models/`.
-6. Update `src/config.py`.
-7. Implement `src/data.py`.
-8. Implement `src/metrics.py`.
-9. Customize `src/app.py`.
-10. Run the full project:
+1. Placer le dataset préprocessé dans : `data/process/processed_data_full.csv`
+2. Placer les modèles entraînés dans `models/` :
+   - `models/model1_logistic_regression.pkl`
+   - `models/model2_random_forest.pkl` *(>1GB — non versionné)*
+   - `models/model3_histgbm_optuna.pkl`
+
+Pour régénérer les données et les modèles, exécuter dans l'ordre :
+- `notebooks/EDA.ipynb`
+- `notebooks/Preprocessing.ipynb`
+- `notebooks/Modeling.ipynb`
+
+---
+
+## Exécution
 
 ```bash
 python scripts/main.py
 ```
 
-## Output Produced by the Template
+Cette commande :
+1. Charge les 3 modèles enregistrés dans `src/config.py`
+2. Appelle `load_dataset_split()` — données PCA(10)-transformées
+3. Évalue chaque modèle sur le jeu de test (80/20, stratifié, seed=42)
+4. Calcule recall, F-beta β=2, F1, précision, accuracy
+5. Sauvegarde les résultats dans `results/model_metrics.csv`
+6. Lance l'application Streamlit NORA sur `http://localhost:8501`
 
-After a successful run, you should have:
+---
 
-- printed metrics in the terminal,
-- a CSV file at `results/model_metrics.csv`,
-- a Streamlit app running locally, by default at:
+## Structure du dépôt
 
-```text
-http://localhost:8501
+```
+ml-poc-project/
+├── data/
+│   └── process/
+│       ├── processed_data_full.csv   # 36 features post-preprocessing
+│       └── processed_data_pca.csv    # 4 composantes (95% variance)
+├── deliverables/
+│   ├── assignment1.md                # Description du projet + EDA
+│   ├── assignment2.md                # Preprocessing + Feature Engineering
+│   ├── assignment3.md                # Modélisation
+│   ├── assignment4.md                # Évaluation et visualisations
+│   └── assignment5.md                # Intégration finale
+├── models/
+│   ├── model1_logistic_regression.pkl
+│   ├── model2_random_forest.pkl      # Non versionné (>1GB)
+│   ├── model3_histgbm_optuna.pkl
+│   └── preprocessor.pkl
+├── notebooks/
+│   ├── EDA.ipynb
+│   ├── Preprocessing.ipynb
+│   └── Modeling.ipynb
+├── plots/                            # Graphiques générés
+├── results/
+│   └── model_metrics.csv             # Généré par scripts/main.py
+├── scripts/
+│   └── main.py                       # Point d'entrée principal
+├── src/
+│   ├── app.py                        # Dashboard Streamlit NORA
+│   ├── config.py                     # Chemins et registre des modèles
+│   ├── data.py                       # Chargement et split du dataset
+│   └── metrics.py                    # Calcul des métriques
+├── requirements.txt
+└── README.md
 ```
 
-## Common Errors
+---
 
-### `NotImplementedError` from `data`
+## Dashboard NORA
 
-You have not implemented `load_dataset_split()` yet.
+L'application Streamlit propose 5 onglets :
 
-### `NotImplementedError` from `metrics`
-
-You have not implemented `compute_metrics()` yet.
-
-### `FileNotFoundError` for a model path
-
-One of the model files declared in `src/config.py` does not exist in `models/`.
-
-### Model has no `predict` method
-
-The object loaded from disk is not a trained model compatible with the template evaluation flow.
-
-### Streamlit starts but shows only the placeholder page
-
-You still need to customize `src/app.py` with your project content.
-
-## Notes
-
-- Keep `scripts/main.py` as the main orchestration entry point.
-- Keep the function names and signatures in `src/data.py`, `src/metrics.py`, and `src/app.py` unchanged.
-- Save your trained models before running the template.
-- Use the same evaluation logic for all registered models so the comparison remains fair.
+- **Accueil** — contexte médical, objectifs, périmètre du modèle
+- **Données (EDA)** — distribution des variables, taux NICU par facteur de risque
+- **Feature Engineering** — variables dérivées et médicales à fort signal
+- **Modèles & Évaluation** — comparaison des 3 modèles, courbes ROC et Precision-Recall
+- **Démo** — prédiction interactive du risque NICU à partir d'un profil maternel
