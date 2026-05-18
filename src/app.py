@@ -563,8 +563,8 @@ def page_feature_engineering():
         """, unsafe_allow_html=True)
 
     st.markdown('<hr class="soft">', unsafe_allow_html=True)
-    st.subheader("Pipeline de preprocessing")
-    st.markdown("Chaque étape est appliquée dans l'ordre indiqué, via un `ColumnTransformer` scikit-learn sauvegardé.")
+    st.subheader("Pipeline de preprocessing → CSV (36 colonnes)")
+    st.markdown("Étapes 1 à 4 appliquées dans `Preprocessing.ipynb` et sauvegardées dans `processed_data_full.csv`. L'étape 5 (SMOTE + PCA) appartient au **pipeline de modélisation** — elle est appliquée à l'intérieur de chaque fold CV, jamais sur les données de test.")
 
     c1, c2, c3, c4, c5 = st.columns(5)
     steps = [
@@ -584,10 +584,11 @@ def page_feature_engineering():
          "Variables catégorielles → colonnes binaires. <code>drop='first'</code> "
          "évite la <strong>dummy trap</strong> (multicolinéarité). "
          "Résultat : <strong>36 colonnes</strong> après encodage."),
-        ("#A5C8E8", "5 · SMOTE + PCA(10)",
-         "SMOTE équilibre les classes pour RF/HGB (pas pour LR). "
+        ("#A5C8E8", "5 · SMOTE + PCA(10) — Modélisation",
+         "<em>Hors preprocessing</em> — appliqué dans chaque fold CV.<br>"
+         "SMOTE équilibre les classes (RF/HGB uniquement). "
          "PCA réduit 36 → <strong>10 composantes</strong> (99.3% variance). "
-         "Le PCA est fitté <em>avant</em> SMOTE pour éviter le data leakage."),
+         "PCA fitté sur X_train original, avant SMOTE."),
     ]
     for col, (color, title, desc) in zip([c1, c2, c3, c4, c5], steps):
         with col:
@@ -648,7 +649,7 @@ def page_models():
           <div class="demo-section-title">2 · Random Forest &nbsp;
             <span style="background:#E8F5E9;color:#2E7D32;padding:2px 8px;border-radius:8px;font-size:0.7rem;font-weight:700;">Retenu</span>
           </div>
-          <p>100 arbres en parallèle sur sous-échantillons. SMOTE + PCA(10) + seuil optimisé F-beta β=2.</p>
+          <p>500 arbres en parallèle sur sous-échantillons. SMOTE + PCA(10) + seuil optimisé F-beta β=2.</p>
           <p><strong>Atout :</strong> robuste aux outliers, capture les interactions complexes.</p>
         </div>
         """, unsafe_allow_html=True)
@@ -784,7 +785,7 @@ def page_models():
         st.image(str(PLOTS_DIR / "model3_optuna.png"), use_container_width=True)
     with col4:
         st.markdown("**Benchmark LazyPredict — 25 classifieurs**")
-        st.markdown("25 algorithmes entraînés sans tuning sur 8 000 lignes — confirme que RF et GBM dominent, validant le choix de ces deux modèles.")
+        st.markdown("25 algorithmes entraînés sans SMOTE ni threshold tuning sur 8 000 lignes. RF est confirmé parmi les meilleurs classifieurs non-linéaires (top 5). HistGBM n'est pas dans le top 10 sur ce benchmark — son choix est validé par ses résultats finaux (recall=0.698) et la progression méthodologique LR → RF → HGB.")
         st.image(str(PLOTS_DIR / "lazypredict_benchmark.png"), use_container_width=True)
 
 

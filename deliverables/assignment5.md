@@ -92,8 +92,8 @@ Présente les résultats de l'analyse exploratoire avec 9 visualisations comment
 Documente les transformations appliquées au dataset :
 
 - Tableau des **8 variables médicales à fort signal** ajoutées (taux NICU et multiplicateur vs base)
-- Description des **3 variables dérivées** créées manuellement (Evol_Tabac, Suivi_T1, Grossesse_Multiple)
-- Pipeline de preprocessing en 5 étapes visuelles (sentinelles → imputation → RobustScaler → OHE → SMOTE + PCA)
+- Description des **4 variables dérivées** créées manuellement (Grossesse_Multiple, ATCD_Mort_Foetale_bin, Evol_Tabac, Suivi_T1)
+- Pipeline de preprocessing en 5 étapes visuelles (sentinelles → imputation → RobustScaler → OHE → CSV 36 colonnes)
 - Graphique de **variance expliquée par la PCA** (10 composantes = 99.3%)
 - Distribution de la prise de poids après nettoyage des aberrations cliniques
 

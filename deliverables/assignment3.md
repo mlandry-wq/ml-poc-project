@@ -190,7 +190,7 @@ Les trois modèles ont été choisis pour former une **progression méthodologiq
 |---|---|---|---|
 | Complexité | Faible | Moyenne | Élevée |
 | Hypothèse | Linéarité | Non-linéarité (bagging) | Non-linéarité (boosting) |
-| Gestion déséquilibre | Threshold seul | SMOTE + class_weight | SMOTE + Optuna F-beta |
+| Gestion déséquilibre | Threshold seul | SMOTE + class_weight | SMOTE + class_weight + Optuna F-beta |
 | Interprétabilité | Haute | Moyenne | Faible |
 | Temps d'entraînement | < 1s | ~10 min | ~20 min |
 | F-beta β=2 obtenu | 0.259 | **0.350** | 0.337 |
@@ -201,7 +201,7 @@ Les trois modèles ont été choisis pour former une **progression méthodologiq
 
 **HGB** est le modèle de comparaison avancé : le boosting est théoriquement mieux adapté que le bagging pour les problèmes déséquilibrés (focus sur les exemples difficiles), et l'optimisation Optuna permet d'explorer l'espace des hyperparamètres de façon plus rigoureuse. La validation croisée interne (3 folds F-beta β=2) garantit une sélection de modèle sans data leakage.
 
-> **LazyPredict** a été utilisé en amont (Section 4 du notebook Modeling) pour surveiller ~25 classifieurs sklearn sur un sous-échantillon de 8 000 observations. Les résultats ont confirmé que RF et les modèles de gradient boosting dominent en recall sur ces données, validant *a posteriori* le choix de ces deux familles de modèles.
+> **LazyPredict** a été utilisé en amont (Section 4 du notebook Modeling) pour surveiller ~25 classifieurs sklearn sur un sous-échantillon de 8 000 observations (sans SMOTE ni threshold tuning, seuil par défaut 0.5). Les résultats confirment que **RF est parmi les meilleurs classifieurs non-linéaires** (top 5, derrière SVC qui ne scale pas sur 145k observations et des variantes de la famille RF). HistGBM n'apparaît pas dans le top 10 sur ce benchmark — son choix est validé par ses résultats finaux (recall=0.698, F-beta=0.337) et par la progression méthodologique bagging → boosting, pas par LazyPredict.
 
 ---
 

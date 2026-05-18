@@ -4,12 +4,12 @@
 
 ## 1. Vue d'ensemble des visualisations produites
 
-Le projet a généré **11 visualisations** réparties en trois catégories, sauvegardées dans le dossier `plots/` :
+Le projet a généré **16 visualisations** réparties en trois catégories, sauvegardées dans le dossier `plots/` :
 
 | Catégorie | Fichier(s) | Notebook source |
 |---|---|---|
-| **Données brutes** | `0_missing_values.png`, `1_distribution_target.png`, `2_distributions_continues.png`, `3_tabac_vs_risque.png`, `4_categoriques_vs_risque.png`, `5_correlations.png`, `6_multivariate.png` | `EDA.ipynb` |
-| **Après feature engineering** | `preprocessing_pca_variance.png`, `poids_bins.png` | `Preprocessing.ipynb` |
+| **Données brutes (EDA)** | `0_missing_values.png`, `1_distribution_target.png`, `2_distributions_continues.png`, `3_tabac_vs_risque.png`, `4_categoriques_vs_risque.png`, `4b_nouvelles_vars_medicales.png`, `5_correlations.png`, `6_multivariate.png`, `poids_bins.png` | `EDA.ipynb` |
+| **Après preprocessing** | `preprocessing_pca_variance.png` | `Preprocessing.ipynb` |
 | **Performances des modèles** | `model1_logistic_regression.png`, `model2_random_forest.png`, `model3_histgbm_optuna.png`, `model3_optuna.png`, `comparaison_modeles.png`, `lazypredict_benchmark.png` | `Modeling.ipynb` |
 
 ---
@@ -56,7 +56,19 @@ Un camembert aurait été illisible sur des proportions 91%/9%. Le bar chart ave
 
 ---
 
-### 2.4 Taux NICU par variable catégorielle (`4_categoriques_vs_risque.png`)
+### 2.4 Analyse comportementale — Tabac vs risque NICU (`3_tabac_vs_risque.png`)
+
+**Objectif** : analyser si l'intensité du tabagisme maternel est corrélée au risque d'admission NICU, en segmentant la consommation en tranches (non-fumeur, 1–5, 6–10, 11–20, 20+ cig/jour).
+
+**Type de graphique** : diagrammes en barres groupées par tranche de consommation, avec ligne de référence horizontale au taux moyen. Deux panneaux côte à côte : tabac avant grossesse et tabac au T1.
+
+**Interprétation** : une légère tendance est observable (taux NICU légèrement plus élevé chez les fumeuses intensives), mais le signal reste faible — corrélation < 0.05, probablement atténué par la **sous-déclaration** des mères sur les certificats de naissance. Le tabac est conservé comme variable du modèle pour sa valeur comportementale cumulée (Evol_Tabac), mais ne constitue pas un signal discriminant fort.
+
+**Pertinence** : cette visualisation est importante précisément parce qu'elle montre l'**absence de signal fort** — ce qui motive l'enrichissement du dataset avec des variables médicales à fort signal.
+
+---
+
+### 2.5 Taux NICU par variable catégorielle (`4_categoriques_vs_risque.png`)
 
 **Objectif** : mesurer le pouvoir discriminant des variables catégorielles médicales en comparant le taux d'admission NICU par modalité.
 
@@ -80,7 +92,19 @@ Ce type de graphique est plus informatif qu'une matrice de corrélation pour les
 
 ---
 
-### 2.5 Matrice de corrélations (`5_correlations.png`)
+### 2.6 Variables médicales à fort signal — Taux NICU par modalité (`4b_nouvelles_vars_medicales.png`)
+
+**Objectif** : visualiser le signal prédictif des 6 variables médicales clés (éclampsie, PMA, traitement infertilité, ATCD prématuré, HTA gestationnelle, diabète gestationnel) en comparant le taux NICU par modalité (Y/N/U).
+
+**Type de graphique** : grille 2×3 de diagrammes en barres, un par variable médicale, avec ligne de référence horizontale au taux de base (8.9%). Chaque barre est colorée selon qu'elle dépasse ou non la base.
+
+**Interprétation** : pour toutes ces variables, la modalité `Y` (présence de la condition) produit systématiquement un taux NICU **supérieur à la base**, avec des multiplicateurs allant de ×1.4 (diabète gestationnel, 12.3%) à ×3.0 (éclampsie, 27.1%). La modalité `U` (inconnu) montre des taux intermédiaires — ces valeurs ne sont pas aléatoires et portent un signal résiduel.
+
+**Pertinence** : ce graphique est le pendant de `4_categoriques_vs_risque.png` pour les variables médicales spécifiquement. Il justifie leur inclusion dans le modèle avec des chiffres concrets et valide *a posteriori* la stratégie de feature selection basée sur l'EDA.
+
+---
+
+### 2.7 Matrice de corrélations (`5_correlations.png`)
 
 **Objectif** : quantifier les corrélations linéaires entre toutes les variables numériques et avec la cible, et détecter les colinéarités potentielles entre prédicteurs.
 
@@ -93,6 +117,18 @@ La heatmap est le standard pour visualiser une matrice de corrélation — elle 
 2. **Colinéarités internes** : `Tabac_Avant`, `Tabac_Trim1` et `Tabac_Trim3` sont fortement corrélés entre eux (r > 0.7), justifiant la variable dérivée `Evol_Tabac` et motivant l'utilisation de la PCA pour réduire cette redondance.
 
 **Pertinence** : cette visualisation justifie simultanément (1) l'ajout de nouvelles features médicales et (2) l'utilisation de la PCA pour compresser les colinéarités OHE/tabac en composantes denses.
+
+---
+
+### 2.8 Analyse multivariée — Scatter plots (`6_multivariate.png`)
+
+**Objectif** : explorer les interactions entre paires de variables continues (âge/IMC et IMC/prise de poids) en superposant les deux classes pour détecter une éventuelle séparation visuelle.
+
+**Type de graphique** : scatter plots avec sous-échantillonnage stratifié (2 500 points par classe), opacité différenciée pour mettre en évidence les cas NICU (rouge, plus opaque) sur les non-NICU (bleu, transparent).
+
+**Interprétation** : les cas NICU (rouge) sont répartis **uniformément** dans l'espace des variables de base — aucun cluster isolé n'émerge. Les classes sont mélangées sans frontière linéaire ou non-linéaire évidente sur ces deux projections. Ce résultat confirme que les relations entre features et risque NICU sont complexes et non détectables par des approches simples.
+
+**Pertinence** : cette visualisation justifie le choix de modèles non-linéaires (Random Forest, HistGBM) plutôt qu'une régression logistique simple, et valide l'utilisation de la PCA pour réorganiser l'espace des features en directions plus discriminantes.
 
 ---
 
@@ -223,8 +259,9 @@ Chaque visualisation répond à **une question précise** dans cette narration :
 |---|---|
 | Y a-t-il des données manquantes ? | `0_missing_values.png` |
 | Les classes sont-elles équilibrées ? | `1_distribution_target.png` |
-| Les features de base discriminent-elles ? | `2_distributions_continues.png` + `5_correlations.png` |
-| Quelles nouvelles features apportent du signal ? | `4_categoriques_vs_risque.png` |
+| Les features de base discriminent-elles ? | `2_distributions_continues.png` + `5_correlations.png` + `6_multivariate.png` |
+| Le tabac est-il un signal fort ? | `3_tabac_vs_risque.png` |
+| Quelles nouvelles features apportent du signal ? | `4_categoriques_vs_risque.png` + `4b_nouvelles_vars_medicales.png` |
 | Combien de composantes PCA retenir ? | `preprocessing_pca_variance.png` |
 | Le traitement des outliers est-il valide ? | `poids_bins.png` |
 | Quels modèles valent la peine d'être tunés ? | `lazypredict_benchmark.png` |
@@ -240,7 +277,7 @@ Chaque visualisation répond à **une question précise** dans cette narration :
 
 | Notebook | Chemin | Visualisations générées |
 |---|---|---|
-| EDA | `notebooks/EDA.ipynb` | `plots/0_*` à `plots/6_*`, `plots/poids_bins.png` |
+| EDA | `notebooks/EDA.ipynb` | `plots/0_*` à `plots/6_*`, `plots/4b_nouvelles_vars_medicales.png`, `plots/poids_bins.png` |
 | Preprocessing | `notebooks/Preprocessing.ipynb` | `plots/preprocessing_pca_variance.png` |
 | Modeling | `notebooks/Modeling.ipynb` | `plots/model*`, `plots/comparaison_modeles.png`, `plots/lazypredict_benchmark.png` |
 

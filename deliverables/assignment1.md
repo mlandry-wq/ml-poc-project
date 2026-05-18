@@ -2,7 +2,7 @@
 ---
 
 ## 1. Description du projet
-Ce projet consiste à développer un modèle de Machine Learning capable de prédire les risques de complications de santé chez le nouveau-né en se basant sur le profil clinique et les comportements de la mère durant la grossesse.
+Ce projet consiste à développer un modèle de ML capable de prédire les risques de complications de santé chez le nouveau-né en se basant sur le profil clinique et les comportements de la mère durant la grossesse.
 
 L'objectif est d'utiliser les données massives de santé publique pour identifier des signaux d'alarme précoces. Une détection proactive permet d'intensifier le suivi prénatal et de mettre en place des interventions ciblées (ex: sevrage tabagique, gestion du poids) afin d'améliorer la santé infantile et de réduire les coûts liés aux hospitalisations prolongées.
 
@@ -23,7 +23,7 @@ Le dataset s'appuie sur la base de données **Natality 2018** du **CDC** (Center
 
 *   **Méthode de collecte :** Données extraites des certificats de naissance standardisés aux États-Unis, centralisées par le National Center for Health Statistics (NCHS).
 *   **Volume utilisé :** Un échantillon représentatif de **99 900 lignes** (issu du dataset original de 3,8 millions de lignes).
-*   **Justification du choix :** Ce dataset offre un réalisme "terrain" avec des classes déséquilibrées et des variables déclaratives, confrontant le modèle à de vrais défis de Data Science.
+*   **Justification du choix :** Ce dataset offre un réalisme "terrain" avec des classes déséquilibrées et des variables déclaratives.
 
 ---
 
@@ -46,25 +46,18 @@ Afin de maximiser le signal prédictif, **19 variables** ont été sélectionné
 | **Assurance** | Catégorique | Mode de prise en charge financière (Medicaid, Privée, CHIP…). |
 | **Prise_Poids** | Continu | Gain de poids total durant la grossesse (en livres, cap [0–80]). |
 
-### Nouvelles variables médicales (fort signal)
+### Variables médicales à fort signal (identifiées en EDA)
 
 | Variable | Taux NICU si positif | vs Base (8.9%) | Type |
 | :--- | :--- | :--- | :--- |
-| **Grossesse_Multiple** | 37–87% (jumeaux/triplets) | **×4 à ×10** | Binaire (feat. eng.) |
+| **Pluralite** | 37–87% (jumeaux/triplets) | **×4 à ×10** | Catégorique (CDC) |
 | **Eclampsie** | 27.1% | ×3.0 | Catégorique (Y/N/U) |
-| **Traitement_Infertilite** | 21.3% | ×2.4 | Catégorique (Y/N/U) |
 | **PMA** (assist. médicale) | 23.9% | ×2.7 | Catégorique (Y/N/X/U) |
+| **Traitement_Infertilite** | 21.3% | ×2.4 | Catégorique (Y/N/U) |
 | **ATCD_Premature** | 19.2% | ×2.2 | Catégorique (Y/N/U) |
 | **HTA_Gestationnelle** | 16.8% | ×1.9 | Catégorique (Y/N/U) |
-| **ATCD_Mort_Foetale_bin** | jusqu'à 16.1% | ×1.8 | Binaire (feat. eng.) |
+| **ATCD_Mort_Foetale** | jusqu'à 16.1% | ×1.8 | Catégorique (Y/N/U) |
 | **Diabete_Gestationnel** | 12.3% | ×1.4 | Catégorique (Y/N/U) |
-
-### Variables créées par Feature Engineering
-
-| Variable | Formule | Justification |
-| :--- | :--- | :--- |
-| **Evol_Tabac** | `Tabac_Trim1 − Tabac_Avant` | Capture le changement de comportement tabagique |
-| **Suivi_T1** | `Mois_Debut_Suivi ≤ 3` | Proxy pour la précocité d'accès aux soins |
 
 ---
 
@@ -75,7 +68,6 @@ Afin de maximiser le signal prédictif, **19 variables** ont été sélectionné
     *   **Recall (Sensibilité) :** Métrique prioritaire. Il est crucial de minimiser les Faux Négatifs (ne pas détecter un bébé en danger).
     *   **F-beta (β=2) :** Utilisé pour le tuning du seuil — pondère le Recall 2x plus que la Précision, reflétant l'asymétrie médicale des coûts FN/FP.
     *   **F1-Score & AUC-ROC :** Pour monitorer l'équilibre global face au déséquilibre des classes.
-*   **Réduction dimensionnelle :** PCA(10 composantes, ~99% de variance) appliquée après SMOTE dans le pipeline de modélisation — élimine les redondances OHE et améliore la séparation des classes minoritaires.
 
 ---
 
@@ -86,9 +78,9 @@ L'analyse exploratoire réalisée dans le notebook `EDA.ipynb` a mis en évidenc
 1.  **Déséquilibre des classes :** Environ **9%** des naissances aboutissent à une admission en NICU. Le modèle gère ce déséquilibre via SMOTE (dans le pipeline CV pour éviter le leakage) et `class_weight='balanced'`.
 2.  **Signal fort des grossesses multiples :** Jumeaux → 37.5% NICU, triplets → 87.5%. Variable la plus discriminante du dataset.
 3.  **Conditions gestationnelles prédictives :** Éclampsie (27%), PMA (24%), traitement infertilité (21%), HTA gestationnelle (17%).
-4.  **Corrélations faibles pour les variables de base :** Les variables initiales (âge, IMC, tabac) ont toutes des corrélations < 0.05 avec la target. Les nouvelles features médicales apportent un signal significativement plus fort.
+4.  **Corrélations faibles pour les variables de base :** Les variables initiales (âge, IMC, tabac) ont toutes des corrélations < 0.05 avec la target. Les variables médicales (éclampsie, PMA, pluralité) apportent un signal significativement plus fort.
 5.  **Valeurs sentinelles CDC :** Le CDC encode les non-réponses avec des codes numériques (99, 99.9, 9) — identifiés et remplacés par NaN avant toute transformation.
-6.  **PCA(10) : gain majeur en modélisation** : la réduction de 36 → 10 dimensions améliore le recall du Random Forest de 0.662 à **0.766** (+10 pts) en éliminant la redondance des 26 colonnes OHE. Meilleur F-beta β=2 = 0.350 (RF retenu).
+6.  **Absence de séparation linéaire :** L'analyse multivariée (scatter matrix) confirme que les classes ne sont pas linéairement séparables — un modèle non-linéaire (arbre, boosting) sera probablement nécessaire.
 
 ---
 

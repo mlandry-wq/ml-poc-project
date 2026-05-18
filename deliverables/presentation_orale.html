@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>NORA — Présentation Orale</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+  :root {
+    --rose:     #E8A5B0;
+    --blue:     #A5C8E8;
+    --mint:     #A5D9C5;
+    --peach:    #F5C8A5;
+    --lavender: #C8B5E8;
+    --plum:     #5C4B6B;
+    --slate:    #7A8B99;
+    --bg:       #FAF8F5;
+    --border:   #EDE8E3;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: var(--bg);
+    color: #3A3050;
+    font-size: 11pt;
+    line-height: 1.6;
+  }
+
+  /* ── Cover ── */
+  .cover {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    background: linear-gradient(135deg, #F5EEF8 0%, #EEF4FA 50%, #EBF8F3 100%);
+    padding: 60px 40px;
+    page-break-after: always;
+  }
+
+  .cover-logo {
+    width: 72px; height: 72px;
+    background: linear-gradient(135deg, #E8A5B0 0%, #C8B5E8 100%);
+    border-radius: 20px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 2rem; font-weight: 800; color: white;
+    margin: 0 auto 28px;
+  }
+
+  .cover h1 {
+    font-size: 3rem; font-weight: 800;
+    color: var(--plum); letter-spacing: -1px;
+    margin-bottom: 12px;
+  }
+
+  .cover .subtitle {
+    font-size: 1.2rem; color: #6B5B78;
+    max-width: 560px; margin: 0 auto 40px;
+    font-weight: 400;
+  }
+
+  .cover-meta {
+    display: flex; gap: 32px; justify-content: center;
+    flex-wrap: wrap; margin-top: 20px;
+  }
+
+  .cover-tag {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 12px 24px;
+    font-size: 0.9rem;
+    color: var(--plum);
+  }
+
+  .cover-tag strong { display: block; font-size: 1.1rem; font-weight: 700; }
+
+  /* ── Sections ── */
+  .section {
+    padding: 48px 56px;
+    page-break-after: always;
+    min-height: 100vh;
+  }
+
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 32px;
+    padding-bottom: 16px;
+    border-bottom: 2px solid var(--border);
+  }
+
+  .section-num {
+    width: 42px; height: 42px; flex-shrink: 0;
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 800; font-size: 1.1rem; color: white;
+  }
+
+  .section h2 {
+    font-size: 1.6rem; font-weight: 700; color: var(--plum);
+  }
+
+  /* ── Cards ── */
+  .cards { display: grid; gap: 16px; }
+  .cards-2 { grid-template-columns: 1fr 1fr; }
+  .cards-3 { grid-template-columns: 1fr 1fr 1fr; }
+
+  .card {
+    background: white;
+    border-radius: 14px;
+    padding: 20px 22px;
+    border: 1px solid var(--border);
+    border-top: 4px solid var(--rose);
+  }
+
+  .card h3 {
+    font-size: 0.9rem; font-weight: 700; color: var(--plum);
+    margin-bottom: 10px; text-transform: uppercase; letter-spacing: 0.5px;
+  }
+
+  .card p, .card li { font-size: 0.92rem; color: #4A4058; margin-bottom: 6px; }
+  .card ul { padding-left: 18px; }
+  .card li { margin-bottom: 4px; }
+
+  /* ── KPI row ── */
+  .kpi-row { display: flex; gap: 14px; flex-wrap: wrap; margin: 20px 0; }
+  .kpi {
+    flex: 1; min-width: 120px;
+    background: white; border-radius: 14px;
+    padding: 18px 20px; border: 1px solid var(--border);
+    text-align: center;
+  }
+  .kpi-val { font-size: 1.8rem; font-weight: 800; color: var(--plum); }
+  .kpi-lbl { font-size: 0.78rem; color: var(--slate); margin-top: 4px; }
+
+  /* ── Table ── */
+  table {
+    width: 100%; border-collapse: collapse;
+    margin: 20px 0; font-size: 0.9rem;
+  }
+  th {
+    background: var(--plum); color: white;
+    padding: 10px 14px; text-align: left; font-weight: 600;
+  }
+  td { padding: 9px 14px; border-bottom: 1px solid var(--border); }
+  tr:nth-child(even) { background: #F9F7FC; }
+  tr.highlight { background: #F0FBF5 !important; }
+  tr.highlight td { font-weight: 700; color: var(--plum); }
+  .badge {
+    display: inline-block; padding: 2px 8px; border-radius: 6px;
+    font-size: 0.78rem; font-weight: 700;
+  }
+  .badge-red    { background: #FDECEA; color: #C62828; }
+  .badge-orange { background: #FFF3E0; color: #E65100; }
+  .badge-green  { background: #E8F5E9; color: #2E7D32; }
+  .badge-gray   { background: #F5F5F5; color: #616161; }
+
+  /* ── Info box ── */
+  .info-box {
+    background: #FFF8E8;
+    border-left: 4px solid var(--peach);
+    border-radius: 0 10px 10px 0;
+    padding: 14px 18px;
+    font-size: 0.9rem; color: #5C4B20;
+    margin: 16px 0;
+  }
+
+  .info-box-green {
+    background: #F0FBF5;
+    border-left: 4px solid var(--mint);
+    border-radius: 0 10px 10px 0;
+    padding: 14px 18px;
+    font-size: 0.9rem; color: #1B5E20;
+    margin: 16px 0;
+  }
+
+  /* ── Pipeline ── */
+  .pipeline {
+    display: flex; gap: 0; align-items: stretch;
+    margin: 24px 0; flex-wrap: wrap;
+  }
+  .pipe-step {
+    flex: 1; min-width: 120px;
+    background: white; border: 1px solid var(--border);
+    padding: 14px 16px; text-align: center;
+    position: relative;
+  }
+  .pipe-step:not(:last-child)::after {
+    content: '→';
+    position: absolute; right: -12px; top: 50%;
+    transform: translateY(-50%);
+    color: var(--slate); font-size: 1.1rem; z-index: 1;
+  }
+  .pipe-step:first-child { border-radius: 10px 0 0 10px; }
+  .pipe-step:last-child  { border-radius: 0 10px 10px 0; }
+  .pipe-label { font-size: 0.75rem; font-weight: 700; color: var(--plum); margin-bottom: 4px; }
+  .pipe-desc  { font-size: 0.7rem; color: var(--slate); }
+
+  /* ── Formula ── */
+  .formula {
+    background: white; border: 1px solid var(--border);
+    border-radius: 12px; padding: 20px 24px;
+    text-align: center; margin: 16px 0;
+  }
+  .formula .eq { font-size: 1.1rem; font-weight: 600; color: var(--plum); }
+  .formula .sub { font-size: 0.82rem; color: var(--slate); margin-top: 8px; }
+
+  /* ── Speaking notes ── */
+  .notes {
+    background: #FFFDE7;
+    border: 1px dashed #F9A825;
+    border-radius: 10px;
+    padding: 14px 18px;
+    margin-top: 20px;
+    font-size: 0.82rem; color: #5D4037;
+  }
+  .notes strong { color: #E65100; }
+
+  /* ── Print ── */
+  @media print {
+    body { background: white; }
+    .section, .cover { page-break-after: always; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ══════════════════ COVER ══════════════════ -->
+<div class="cover">
+  <div class="cover-logo">N</div>
+  <h1>NORA</h1>
+  <p class="subtitle">Neonatal Outcome Risk Assessment<br>
+  Prédiction du risque d'admission en Unité de Soins Intensifs Néonatals</p>
+
+  <div class="kpi-row" style="justify-content:center; margin-top:32px;">
+    <div class="kpi"><div class="kpi-val">99 900</div><div class="kpi-lbl">Naissances CDC 2018</div></div>
+    <div class="kpi"><div class="kpi-val">8.9%</div><div class="kpi-lbl">Taux NICU réel</div></div>
+    <div class="kpi"><div class="kpi-val">76.6%</div><div class="kpi-lbl">Recall NORA</div></div>
+    <div class="kpi"><div class="kpi-val">19</div><div class="kpi-lbl">Variables retenues</div></div>
+  </div>
+
+  <div class="cover-meta">
+    <div class="cover-tag">
+      <strong>Classification binaire</strong>
+      Admission NICU (0/1)
+    </div>
+    <div class="cover-tag">
+      <strong>Modèle retenu</strong>
+      Random Forest + PCA(10)
+    </div>
+    <div class="cover-tag">
+      <strong>Métrique prioritaire</strong>
+      F-beta β=2 · Recall
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════ 1. PROBLÉMATIQUE ══════════════════ -->
+<div class="section">
+  <div class="section-header">
+    <div class="section-num" style="background:var(--rose);">1</div>
+    <h2>Problématique &amp; Objectif</h2>
+  </div>
+
+  <div class="cards cards-2">
+    <div class="card" style="border-top-color:var(--rose);">
+      <h3>Contexte médical</h3>
+      <p>Le <strong>NICU</strong> (Neonatal Intensive Care Unit) accueille les nouveau-nés en détresse : prématurité, complications obstétricales, pathologies maternelles.</p>
+      <ul>
+        <li>Coût moyen : <strong>3 000 à 100 000 USD</strong> par séjour</li>
+        <li>Ressources hospitalières limitées et spécialisées</li>
+        <li>Charge émotionnelle considérable pour les familles</li>
+      </ul>
+    </div>
+    <div class="card" style="border-top-color:var(--blue);">
+      <h3>Objectif de NORA</h3>
+      <p>Identifier <strong>dès la grossesse</strong> les mères dont le bébé présente un risque élevé d'admission NICU, pour :</p>
+      <ul>
+        <li>Intensifier le suivi prénatal ciblé</li>
+        <li>Planifier les ressources néonatales en amont</li>
+        <li>Orienter vers des spécialistes en médecine fœtale</li>
+        <li>Prioriser les interventions de prévention</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="cards cards-2" style="margin-top:16px;">
+    <div class="card" style="border-top-color:var(--mint);">
+      <h3>Problème ML</h3>
+      <p><strong>Classification binaire supervisée</strong></p>
+      <ul>
+        <li><strong>0</strong> — Pas d'admission NICU (91.1%)</li>
+        <li><strong>1</strong> — Admission NICU · cible à détecter (8.9%)</li>
+      </ul>
+      <p style="margin-top:10px;">Le déséquilibre fort rend l'accuracy trompeuse — un modèle naïf atteint 91% en prédisant toujours "non".</p>
+    </div>
+    <div class="card" style="border-top-color:var(--peach);">
+      <h3>Asymétrie des coûts d'erreur</h3>
+      <table style="margin:0;">
+        <tr><th>Erreur</th><th>Conséquence</th></tr>
+        <tr><td><strong>Faux Négatif</strong></td><td>Bébé à risque non détecté → grave, irréversible</td></tr>
+        <tr><td><strong>Faux Positif</strong></td><td>Hospitalisation inutile → coût financier, stress</td></tr>
+      </table>
+      <p style="margin-top:10px;">→ F-beta β=2 : pénalise les FN <strong>deux fois plus</strong> que les FP.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════ 2. DATASET ══════════════════ -->
+<div class="section">
+  <div class="section-header">
+    <div class="section-num" style="background:var(--blue);">2</div>
+    <h2>Dataset &amp; Collecte</h2>
+  </div>
+
+  <div class="cards cards-3">
+    <div class="card" style="border-top-color:var(--blue);">
+      <h3>Source</h3>
+      <p><strong>CDC Natality 2018</strong></p>
+      <p>Base nationale américaine des certificats de naissance, centralisée par le NCHS (National Center for Health Statistics).</p>
+      <ul>
+        <li>Dataset original : <strong>3,8 millions</strong> de naissances</li>
+        <li>Échantillon utilisé : <strong>99 900 lignes</strong></li>
+        <li>Variables disponibles : <strong>200+</strong> colonnes brutes CDC</li>
+        <li>Variables retenues : <strong>19</strong></li>
+      </ul>
+    </div>
+    <div class="card" style="border-top-color:var(--lavender);">
+      <h3>Collecte &amp; Encodage</h3>
+      <p>Données issues des certificats de naissance standardisés.</p>
+      <ul>
+        <li>Variables <strong>déclaratives</strong> (tabac, antécédents)</li>
+        <li>Codes CDC techniques → labels métier</li>
+        <li>Sentinelles numériques : <code>9</code>, <code>99</code>, <code>99.9</code> → NaN</li>
+        <li>Cible filtrée : uniquement <code>Y</code> et <code>N</code></li>
+      </ul>
+    </div>
+    <div class="card" style="border-top-color:var(--mint);">
+      <h3>Défis identifiés</h3>
+      <ul>
+        <li>Déséquilibre sévère (9% / 91%)</li>
+        <li>Valeurs sentinelles masquant les NaN réels</li>
+        <li>Corrélations faibles des variables de base (&lt; 0.05)</li>
+        <li>Outliers médicaux légitimes (IMC &gt; 50, âge &gt; 45)</li>
+        <li>Variables auto-déclarées → biais de sous-déclaration</li>
+      </ul>
+    </div>
+  </div>
+
+  <h3 style="margin:24px 0 12px; color:var(--plum);">Variables sélectionnées (19)</h3>
+  <div class="cards cards-2">
+    <div class="card" style="border-top-color:var(--slate);">
+      <h3>Profil maternel de base (11)</h3>
+      <p>Âge, IMC, tabac avant/T1/T3, mois début suivi, aide WIC, hypertension chronique, diabète chronique, assurance, prise de poids</p>
+    </div>
+    <div class="card" style="border-top-color:var(--rose);">
+      <h3>Variables médicales à fort signal (8)</h3>
+      <p>Pluralité <code>(dplural)</code>, éclampsie, PMA, traitement infertilité, ATCD prématuré, HTA gestationnelle, ATCD mort fœtale, diabète gestationnel</p>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════ 3. FEATURE ENGINEERING ══════════════════ -->
+<div class="section">
+  <div class="section-header">
+    <div class="section-num" style="background:var(--mint);">3</div>
+    <h2>Feature Engineering &amp; Preprocessing</h2>
+  </div>
+
+  <h3 style="color:var(--plum); margin-bottom:12px;">Variables médicales à fort signal</h3>
+  <table>
+    <tr><th>Variable</th><th>Source CDC</th><th>Taux NICU</th><th>Signal vs base (8.9%)</th></tr>
+    <tr><td>Grossesse Multiple</td><td>dplural &gt; 1</td><td>37–87%</td><td><span class="badge badge-red">×4 à ×10</span></td></tr>
+    <tr><td>Éclampsie</td><td>rf_ehype</td><td>27.1%</td><td><span class="badge badge-red">×3.0</span></td></tr>
+    <tr><td>PMA</td><td>rf_artec</td><td>23.9%</td><td><span class="badge badge-orange">×2.7</span></td></tr>
+    <tr><td>Traitement infertilité</td><td>rf_inftr</td><td>21.3%</td><td><span class="badge badge-orange">×2.4</span></td></tr>
+    <tr><td>ATCD accouchement prématuré</td><td>rf_ppterm</td><td>19.2%</td><td><span class="badge badge-orange">×2.2</span></td></tr>
+    <tr><td>HTA gestationnelle</td><td>rf_ghype</td><td>16.8%</td><td><span class="badge badge-orange">×1.9</span></td></tr>
+    <tr><td>ATCD mort fœtale</td><td>priordead &gt; 0</td><td>16.1%</td><td><span class="badge badge-gray">×1.8</span></td></tr>
+    <tr><td>Diabète gestationnel</td><td>rf_gdiab</td><td>12.3%</td><td><span class="badge badge-gray">×1.4</span></td></tr>
+  </table>
+
+  <h3 style="color:var(--plum); margin:20px 0 12px;">Variables dérivées créées (4)</h3>
+  <div class="cards cards-2">
+    <div class="card" style="border-top-color:var(--rose);">
+      <h3>Evol_Tabac</h3>
+      <code style="background:#F8F4FC;padding:4px 8px;border-radius:6px;font-size:0.85rem;">Tabac_Trim1 − Tabac_Avant</code>
+      <p style="margin-top:8px;">Capture le changement de comportement tabagique. Négatif = arrêt (protecteur), positif = aggravation.</p>
+    </div>
+    <div class="card" style="border-top-color:var(--mint);">
+      <h3>Suivi_T1</h3>
+      <code style="background:#F8F4FC;padding:4px 8px;border-radius:6px;font-size:0.85rem;">1 si Mois_Debut_Suivi ≤ 3</code>
+      <p style="margin-top:8px;">Proxy de précocité d'accès aux soins — facteur de protection reconnu.</p>
+    </div>
+    <div class="card" style="border-top-color:var(--lavender);">
+      <h3>Grossesse_Multiple</h3>
+      <code style="background:#F8F4FC;padding:4px 8px;border-radius:6px;font-size:0.85rem;">1 si dplural &gt; 1</code>
+      <p style="margin-top:8px;">Signal le plus discriminant. Jumeaux : 37.5% NICU · Triplets : 87.5%.</p>
+    </div>
+    <div class="card" style="border-top-color:var(--peach);">
+      <h3>ATCD_Mort_Foetale_bin</h3>
+      <code style="background:#F8F4FC;padding:4px 8px;border-radius:6px;font-size:0.85rem;">1 si priordead &gt; 0</code>
+      <p style="margin-top:8px;">Binarisation du compte d'antécédents de mort fœtale — taux NICU jusqu'à 16.1% (×1.8 vs base).</p>
+    </div>
+  </div>
+
+  <h3 style="color:var(--plum); margin:20px 0 12px;">Pipeline de preprocessing <span style="font-size:0.8rem;font-weight:400;color:var(--slate);">(notebooks/Preprocessing.ipynb)</span></h3>
+  <div class="pipeline">
+    <div class="pipe-step" style="border-top:3px solid var(--rose);">
+      <div class="pipe-label">Sentinelles CDC</div>
+      <div class="pipe-desc">9, 99, 99.9 → NaN</div>
+    </div>
+    <div class="pipe-step" style="border-top:3px solid var(--peach);">
+      <div class="pipe-label">Imputation</div>
+      <div class="pipe-desc">Médiane (num.) · Mode (cat.)</div>
+    </div>
+    <div class="pipe-step" style="border-top:3px solid var(--mint);">
+      <div class="pipe-label">RobustScaler</div>
+      <div class="pipe-desc">11 vars numériques<br>centré médiane ÷ IQR</div>
+    </div>
+    <div class="pipe-step" style="border-top:3px solid var(--lavender);">
+      <div class="pipe-label">One-Hot Encoding</div>
+      <div class="pipe-desc">10 vars catégorielles<br>→ 25 colonnes (drop='first')</div>
+    </div>
+    <div class="pipe-step" style="border-top:3px solid var(--blue); background:#F0F7FF;">
+      <div class="pipe-label">💾 processed_data_full.csv</div>
+      <div class="pipe-desc"><strong>36 colonnes</strong> · 99 900 lignes<br>11 num. + 25 OHE</div>
+    </div>
+  </div>
+
+  <div class="info-box" style="margin-top:16px;">
+    <strong>Note :</strong> SMOTE et PCA(10) ne font <strong>pas</strong> partie du preprocessing — ils sont appliqués dans le pipeline de modélisation, à l'intérieur de chaque fold de cross-validation, pour éviter tout data leakage.
+  </div>
+</div>
+
+<!-- ══════════════════ 4. MODÈLES ══════════════════ -->
+<div class="section">
+  <div class="section-header">
+    <div class="section-num" style="background:var(--peach);">4</div>
+    <h2>Choix des modèles</h2>
+  </div>
+
+  <div class="formula">
+    <div style="font-size:0.8rem;color:var(--slate);margin-bottom:8px;">MÉTRIQUE DE SÉLECTION</div>
+    <div class="eq">F<sub>β=2</sub> &nbsp;=&nbsp; 5 · Précision · Recall &nbsp;/&nbsp; (4 · Précision + Recall)</div>
+    <div class="sub">β=2 → un Faux Négatif est 2× plus pénalisant qu'un Faux Positif</div>
+  </div>
+
+  <div class="cards cards-3" style="margin-top:20px;">
+    <div class="card" style="border-top-color:var(--lavender);">
+      <h3>1 · Régression Logistique — Baseline</h3>
+      <ul>
+        <li>Frontière linéaire dans PCA(10)</li>
+        <li>Pas de SMOTE — threshold seul</li>
+        <li>Entraînement instantané</li>
+        <li><strong>Rôle :</strong> plancher de performance</li>
+      </ul>
+      <p style="margin-top:10px; color:var(--slate);">Recall=0.354 · Seuil=0.10</p>
+    </div>
+    <div class="card" style="border-top-color:var(--mint);">
+      <h3>2 · Random Forest ✓ Retenu</h3>
+      <ul>
+        <li>500 arbres · balanced_subsample</li>
+        <li>SMOTE + PCA(10)</li>
+        <li>Robuste aux outliers médicaux</li>
+        <li>Capture interactions non-linéaires</li>
+      </ul>
+      <p style="margin-top:10px; color:#2E7D32; font-weight:700;">Recall=0.766 · F-beta=0.350 · Seuil=0.16</p>
+    </div>
+    <div class="card" style="border-top-color:var(--peach);">
+      <h3>3 · HistGBM + Optuna</h3>
+      <ul>
+        <li>Boosting séquentiel correctif</li>
+        <li>25 trials Optuna (TPE) · CV=3</li>
+        <li>Pipeline SMOTE→PCA→HGB dans chaque fold</li>
+        <li>Seuil conservateur (moins de FP)</li>
+      </ul>
+      <p style="margin-top:10px; color:var(--slate);">Recall=0.698 · F-beta=0.337 · Seuil=0.46</p>
+    </div>
+  </div>
+
+  <h3 style="color:var(--plum); margin:24px 0 12px;">Justification de la progression</h3>
+  <table>
+    <tr><th>Critère</th><th>LR</th><th>Random Forest</th><th>HistGBM</th></tr>
+    <tr><td>Complexité</td><td>Faible</td><td>Moyenne</td><td>Élevée</td></tr>
+    <tr><td>Hypothèse</td><td>Linéarité</td><td>Non-linéarité (bagging)</td><td>Non-linéarité (boosting)</td></tr>
+    <tr><td>Gestion déséquilibre</td><td>Threshold seul</td><td>SMOTE + class_weight</td><td>SMOTE + Optuna F-beta</td></tr>
+    <tr><td>Interprétabilité</td><td>Haute</td><td>Moyenne</td><td>Faible</td></tr>
+    <tr class="highlight"><td>F-beta β=2</td><td>0.259</td><td><strong>0.350 ✓</strong></td><td>0.337</td></tr>
+  </table>
+
+  <div class="info-box-green">
+    <strong>LazyPredict</strong> (25 classifieurs, sans SMOTE ni tuning) : <strong>RF confirmé top 5</strong> des classifieurs non-linéaires. SVC (#2) écarté — ne scale pas sur 145k obs. BaggingClassifier (#3) = variante inférieure de RF. HistGBM absent du top 10 — validé par ses résultats finaux et la progression LR → RF → HGB.
+  </div>
+</div>
+
+<!-- ══════════════════ 5. RÉSULTATS ══════════════════ -->
+<div class="section">
+  <div class="section-header">
+    <div class="section-num" style="background:var(--lavender);">5</div>
+    <h2>Résultats &amp; Performances</h2>
+  </div>
+
+  <table>
+    <tr><th>Modèle</th><th>Recall</th><th>Précision</th><th>F1</th><th>F-beta β=2</th><th>Seuil</th><th>SMOTE</th></tr>
+    <tr><td>Régression Logistique</td><td>0.354</td><td>0.109</td><td>0.185</td><td>0.259</td><td>0.10</td><td>Non</td></tr>
+    <tr class="highlight"><td>Random Forest ✓</td><td><strong>0.766</strong></td><td>0.106</td><td>0.193</td><td><strong>0.350</strong></td><td>0.16</td><td>Oui</td></tr>
+    <tr><td>HistGBM + Optuna</td><td>0.698</td><td>0.105</td><td>0.190</td><td>0.337</td><td>0.46</td><td>Oui</td></tr>
+  </table>
+
+  <div class="kpi-row" style="margin-top:24px;">
+    <div class="kpi"><div class="kpi-val" style="color:#2E7D32;">76.6%</div><div class="kpi-lbl">Recall Random Forest</div></div>
+    <div class="kpi"><div class="kpi-val">+41 pts</div><div class="kpi-lbl">vs baseline LR</div></div>
+    <div class="kpi"><div class="kpi-val">0.350</div><div class="kpi-lbl">F-beta β=2 (RF)</div></div>
+    <div class="kpi"><div class="kpi-val">1 363</div><div class="kpi-lbl">VP sur 1 780 cas NICU</div></div>
+    <div class="kpi"><div class="kpi-val">417</div><div class="kpi-lbl">FN (bébés manqués)</div></div>
+  </div>
+
+  <div class="cards cards-2" style="margin-top:16px;">
+    <div class="card" style="border-top-color:var(--mint);">
+      <h3>Interprétation médicale — Random Forest</h3>
+      <ul>
+        <li>Sur 100 bébés à risque : <strong>77 détectés</strong>, 23 manqués</li>
+        <li>~8 faux positifs par vrai positif (seuil 0.16)</li>
+        <li>+41 pts de recall vs baseline linéaire</li>
+        <li>AUC-ROC &gt; 0.80 — bonne discrimination globale</li>
+      </ul>
+    </div>
+    <div class="card" style="border-top-color:var(--peach);">
+      <h3>HistGBM — profil pratique</h3>
+      <ul>
+        <li>Recall légèrement inférieur : 69.8%</li>
+        <li>Seuil conservateur (0.46) → <strong>moins de FP</strong></li>
+        <li>Meilleur choix en milieu hospitalier à ressources limitées</li>
+        <li>F-beta β=2 proche : 0.337 vs 0.350 pour RF</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="info-box" style="margin-top:16px;">
+    <strong>Note sur la précision faible (0.10) :</strong> conséquence directe du seuil bas choisi pour maximiser le recall. Dans ce contexte médical, c'est un compromis intentionnel et documenté — manquer un cas à risque est considéré deux fois plus grave qu'une fausse alerte.
+  </div>
+</div>
+
+<!-- ══════════════════ 6. VISUALISATIONS ══════════════════ -->
+<div class="section">
+  <div class="section-header">
+    <div class="section-num" style="background:var(--blue);">6</div>
+    <h2>Visualisations</h2>
+  </div>
+
+  <p style="margin-bottom:20px;">17 graphiques répartis sur 5 catégories, couvrant l'ensemble du pipeline.</p>
+
+  <table>
+    <tr><th>Catégorie</th><th>Graphique</th><th>Ce qu'il montre</th></tr>
+    <tr><td rowspan="4"><strong>EDA</strong></td>
+      <td>Distribution des classes</td><td>Déséquilibre 91%/9% — justifie SMOTE + F-beta</td></tr>
+    <tr><td>Taux NICU par facteur</td><td>Signal ×1.4 à ×10 des variables médicales vs base</td></tr>
+    <tr><td>Distributions continues</td><td>Asymétrie → justifie RobustScaler</td></tr>
+    <tr><td>Matrice de corrélations</td><td>Corrélations &lt;0.05 → justifie modèle non-linéaire</td></tr>
+    <tr><td rowspan="2"><strong>Feature Eng.</strong></td>
+      <td>Variance PCA cumulée</td><td>10 composantes = 99.3% variance → réduction justifiée</td></tr>
+    <tr><td>Distribution prise de poids</td><td>Validation du cap [0–80 lbs]</td></tr>
+    <tr><td rowspan="3"><strong>Modèles</strong></td>
+      <td>Triptyques (3 modèles)</td><td>Matrice confusion + courbe PR + ROC par modèle</td></tr>
+    <tr><td>Comparaison finale</td><td>4 métriques + F-beta β=2 côte à côte</td></tr>
+    <tr><td>LazyPredict benchmark</td><td>25 classifieurs — valide le choix RF et GBM</td></tr>
+    <tr><td><strong>Optuna</strong></td>
+      <td>Convergence Optuna</td><td>Stabilisation après ~15 trials sur 25</td></tr>
+  </table>
+
+  <div class="info-box-green" style="margin-top:20px;">
+    <strong>Narration cohérente :</strong> chaque visualisation répond à une question précise dans le pipeline — des données brutes (EDA) jusqu'à la décision finale (comparaison modèles). Aucun graphique n'est décoratif.
+  </div>
+</div>
+
+<!-- ══════════════════ 7. DÉMO ══════════════════ -->
+<div class="section">
+  <div class="section-header">
+    <div class="section-num" style="background:var(--rose);">7</div>
+    <h2>Démonstration de l'application</h2>
+  </div>
+
+  <p style="margin-bottom:20px;"><strong>NORA</strong> est un dashboard Streamlit à 6 onglets — lancement : <code>streamlit run src/app.py</code></p>
+
+  <div class="cards cards-3">
+    <div class="card" style="border-top-color:var(--lavender);">
+      <h3>Accueil</h3>
+      <p>Contexte médical, objectif, données sources, guide de navigation, limites connues.</p>
+    </div>
+    <div class="card" style="border-top-color:var(--blue);">
+      <h3>Données (EDA)</h3>
+      <p>9 graphiques interactifs (Plotly + images notebook). Déséquilibre, corrélations, tabac, valeurs manquantes, scatter matrix.</p>
+    </div>
+    <div class="card" style="border-top-color:var(--mint);">
+      <h3>Feature Engineering</h3>
+      <p>Tableau des 8 variables médicales, 3 variables dérivées, pipeline en 5 étapes, PCA variance.</p>
+    </div>
+    <div class="card" style="border-top-color:var(--peach);">
+      <h3>Modèles &amp; Évaluation</h3>
+      <p>Tableau comparatif, graphiques interactifs, triptyques en onglets (3 modèles), Optuna, LazyPredict.</p>
+    </div>
+    <div class="card" style="border-top-color:var(--rose);">
+      <h3>Démo — Prédiction</h3>
+      <p>17 inputs (sliders + selectbox). Sortie : jauge animée + verdict coloré + facteurs de risque détectés.</p>
+    </div>
+    <div class="card" style="border-top-color:var(--slate);">
+      <h3>Limites</h3>
+      <p>Dataset, modèle, périmètre d'utilisation, perspectives d'amélioration.</p>
+    </div>
+  </div>
+
+  <h3 style="color:var(--plum); margin:24px 0 12px;">Pipeline de prédiction (démo)</h3>
+  <div class="pipeline">
+    <div class="pipe-step" style="border-top:3px solid var(--rose);">
+      <div class="pipe-label">Inputs</div>
+      <div class="pipe-desc">17 variables cliniques</div>
+    </div>
+    <div class="pipe-step" style="border-top:3px solid var(--peach);">
+      <div class="pipe-label">Preprocessor</div>
+      <div class="pipe-desc">preprocessor.pkl</div>
+    </div>
+    <div class="pipe-step" style="border-top:3px solid var(--mint);">
+      <div class="pipe-label">PCA(10)</div>
+      <div class="pipe-desc">refit deterministe</div>
+    </div>
+    <div class="pipe-step" style="border-top:3px solid var(--lavender);">
+      <div class="pipe-label">Random Forest</div>
+      <div class="pipe-desc">predict_proba()</div>
+    </div>
+    <div class="pipe-step" style="border-top:3px solid var(--blue);">
+      <div class="pipe-label">Seuil 0.16</div>
+      <div class="pipe-desc">→ Probabilité NICU</div>
+    </div>
+  </div>
+
+  <div class="cards cards-2" style="margin-top:16px;">
+    <div class="card" style="border-top-color:var(--mint);">
+      <h3>Inputs utilisateur (17 variables)</h3>
+      <ul>
+        <li>Sliders : âge, IMC, prise de poids, mois suivi, cigarettes</li>
+        <li>Selectbox : type grossesse, antécédents, pathologies chroniques et gestationnelles, assurance, PMA…</li>
+      </ul>
+    </div>
+    <div class="card" style="border-top-color:var(--rose);">
+      <h3>Outputs affichés</h3>
+      <ul>
+        <li>Jauge 0–100% avec seuil matérialisé</li>
+        <li>Verdict coloré (vert / rouge) + probabilité exacte</li>
+        <li>Facteurs de risque identifiés avec taux NICU observé</li>
+        <li>Avertissement médical</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════ 8. LIMITES ══════════════════ -->
+<div class="section" style="page-break-after:auto;">
+  <div class="section-header">
+    <div class="section-num" style="background:var(--slate);">8</div>
+    <h2>Limites &amp; Pistes d'amélioration</h2>
+  </div>
+
+  <div class="cards cards-2">
+    <div class="card" style="border-top-color:var(--rose);">
+      <h3>Limites du dataset</h3>
+      <ul>
+        <li><strong>Pas de données biologiques</strong> — bilans sanguins, marqueurs sériques, génétiques : facteurs les plus prédictifs cliniquement → plafond de performance (~76% recall)</li>
+        <li><strong>Biais géographique</strong> — population américaine CDC 2018 uniquement</li>
+        <li><strong>Variables auto-déclarées</strong> — sous-déclaration possible du tabac et des antécédents</li>
+      </ul>
+    </div>
+    <div class="card" style="border-top-color:var(--blue);">
+      <h3>Limites du modèle</h3>
+      <ul>
+        <li><strong>Interprétabilité réduite</strong> — PCA(10) : pas de contribution variable par variable (SHAP nécessaire en production)</li>
+        <li><strong>Faux positifs élevés</strong> — ~8 FP par VP avec seuil 0.16</li>
+        <li><strong>SMOTE synthétique</strong> — performances réelles en production pourraient être légèrement inférieures</li>
+        <li><strong>Fenêtre temporelle</strong> — applicable 2e–3e trimestre uniquement</li>
+      </ul>
+    </div>
+  </div>
+
+  <h3 style="color:var(--plum); margin:24px 0 12px;">Perspectives d'amélioration</h3>
+  <table>
+    <tr><th>Axe</th><th>Action</th><th>Impact attendu</th></tr>
+    <tr><td><strong>Signal</strong></td><td>Intégrer données biologiques (marqueurs sériques, bilans)</td><td>Recall potentiellement &gt; 85%</td></tr>
+    <tr><td><strong>Interprétabilité</strong></td><td>SHAP values post-PCA</td><td>Explicabilité par variable pour cliniciens</td></tr>
+    <tr><td><strong>Seuil dynamique</strong></td><td>Adapter selon capacité hospitalière disponible</td><td>Meilleur équilibre FN/FP selon contexte</td></tr>
+    <tr><td><strong>Généralisation</strong></td><td>Validation sur données non-américaines</td><td>Robustesse géographique et temporelle</td></tr>
+    <tr><td><strong>Données récentes</strong></td><td>Post-2018 pour évaluer la stabilité temporelle</td><td>Détection du drift du modèle</td></tr>
+  </table>
+
+  <div class="info-box-green" style="margin-top:24px;">
+    <strong>Conclusion :</strong> NORA détecte <strong>76.6% des bébés à risque</strong> avec le seul profil clinique maternel disponible en 2e–3e trimestre, sans aucune donnée biologique. Sur des données hospitalières complètes, les performances seraient significativement supérieures.
+  </div>
+</div>
+
+</body>
+</html>

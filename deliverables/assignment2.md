@@ -45,11 +45,15 @@ Une mère dont le bébé sera admis en NICU peut accumuler plus de visites *parc
 
 ## 3. Feature Engineering
 
-### Variables dérivées comportementales
+### Variables dérivées créées (3)
 
-**`Evol_Tabac`** : différence entre la consommation de tabac au premier trimestre et avant la grossesse (`Tabac_Trim1 - Tabac_Avant`). Une valeur négative indique une réduction (comportement positif), une valeur positive une augmentation (signal d'alerte). Cette variable capture un **changement de comportement** que les deux variables séparées ne capturent pas individuellement.
+**`Grossesse_Multiple`** : binarisation de la variable CDC `dplural` (pluralité de la grossesse). `1` si `dplural > 1` (jumeaux, triplets…), `0` sinon. C'est la variable avec le **signal le plus discriminant** du dataset : jumeaux → 37.5% NICU, triplets → 87.5% (×4 à ×10 vs base 8.9%). La valeur numérique brute (`dplural` = 1, 2, 3…) est remplacée par ce binaire car le modèle n'a pas besoin de distinguer jumeaux de triplets — le signal est capturé dès que la valeur est `> 1`.
+
+**`Evol_Tabac`** : différence entre la consommation de tabac au premier trimestre et avant la grossesse (`Tabac_Trim1 - Tabac_Avant`). Une valeur négative indique une réduction (comportement positif), une valeur positive une augmentation (signal d'alerte). Cette variable capture un **changement de comportement** que les deux variables séparées ne capturent pas individuellement. Fixée à 0 dans la démo (93.7% des cas d'entraînement ont `Evol_Tabac = 0`).
 
 **`Suivi_T1`** : variable binaire (0/1) indiquant si le suivi prénatal a débuté durant le premier trimestre (mois 1 à 3). Elle sert de proxy pour mesurer la **précocité de l'accès aux soins**, facteur de protection reconnu dans la littérature médicale.
+
+**`ATCD_Mort_Foetale_bin`** : binarisation de la variable CDC `priordead` (nombre d'antécédents de mort fœtale, valeur numérique 0, 1, 2…). `1` si `priordead > 0` (au moins un antécédent), `0` sinon. La valeur brute (compte) est remplacée par un binaire car la distinction entre 1 et 2+ antécédents n'apporte pas de signal supplémentaire significatif au modèle.
 
 ### Nouvelles variables médicales à fort signal
 
@@ -98,7 +102,7 @@ Deux niveaux de réduction dimensionnelle ont été mis en place :
 - **Preprocessing** : PCA conservant 95% de la variance (4 composantes sur 36 features) → `processed_data_pca.csv`, pour archivage et exploration.
 - **Modeling** : PCA(10 composantes, ~99% variance) appliquée **dans le pipeline de modélisation**, après SMOTE. Le PCA est fitté sur `X_train` original (avant SMOTE) pour ne pas laisser les exemples synthétiques influencer l'espace latent.
 
-**Justification de PCA(10) pour la modélisation** : le dataset contient 26 colonnes OHE issues de 10 variables catégorielles, créant une redondance importante. La PCA compresse cette information en 10 composantes denses, éliminant les colinéarités et améliorant la séparation des classes minoritaires. Impact mesuré : +14 pts de recall pour le Random Forest (0.662 → 0.800).
+**Justification de PCA(10) pour la modélisation** : le dataset contient 26 colonnes OHE issues de 10 variables catégorielles, créant une redondance importante. La PCA compresse cette information en 10 composantes denses, éliminant les colinéarités et améliorant la séparation des classes minoritaires. Impact mesuré : +10 pts de recall pour le Random Forest (0.662 → 0.766).
 
 ---
 
@@ -136,10 +140,96 @@ Deux niveaux de réduction dimensionnelle ont été mis en place :
 
 ---
 
-## 7. Données et Notebooks
+## 7. Fichiers Python modifiés
 
-- **Dataset full** (36 features, pour tous les modèles) : `/data/process/processed_data_full.csv`
-- **Dataset PCA** (4 composantes, 95% variance) : `/data/process/processed_data_pca.csv`
-- **Preprocessor sauvegardé** : `/models/preprocessor.pkl`
-- **Notebook de référence** : `notebooks/Preprocessing.ipynb`
-- **`data.py`** : pointe vers `processed_data_full.csv` — compatible avec les 3 modèles.
+### `src/data.py`
+
+Point d'entrée utilisé par `scripts/main.py` et `src/app.py` pour charger les données et les préparer pour l'évaluation des modèles.
+
+**Modifications apportées :**
+
+| Problème initial | Correction |
+|---|---|
+| Chemin hardcodé `/Users/madeleine/...` | Remplacé par `Path(__file__).resolve().parent.parent / "data/process/processed_data_full.csv"` — portable |
+| `sys.path.insert` fragile | Supprimé |
+| Retournait 36 features brutes | Ajout de `PCA(10)` fitté sur `X_train` — les modèles attendent 10 composantes |
+
+**Fonction principale :**
+
+```python
+from src.data import load_dataset_split
+X_train, X_test, y_train, y_test = load_dataset_split()
+# X_train.shape = (79 920, 10)  — PCA(10) appliqué
+# X_test.shape  = (19 980, 10)
+```
+
+Le PCA est refitté à chaque appel sur `X_train` original (avant SMOTE), ce qui reproduit exactement le protocole des notebooks. Le split est stratifié (`random_state=42`, `test_size=0.2`).
+
+---
+
+### `src/metrics.py`
+
+Calcul des métriques d'évaluation appliquées à chaque modèle après prédiction sur `X_test`.
+
+**Modification apportée :** ajout du **F-beta β=2** comme métrique prioritaire.
+
+```python
+from sklearn.metrics import recall_score, f1_score, fbeta_score, accuracy_score, precision_score
+
+def compute_metrics(y_true, y_pred):
+    return {
+        "recall":    float(recall_score(y_true, y_pred, zero_division=0)),
+        "precision": float(precision_score(y_true, y_pred, zero_division=0)),
+        "f1":        float(f1_score(y_true, y_pred, zero_division=0)),
+        "fbeta_2":   float(fbeta_score(y_true, y_pred, beta=2, zero_division=0)),
+        "accuracy":  float(accuracy_score(y_true, y_pred)),
+    }
+```
+
+**Justification du F-beta β=2 :** dans un contexte médical, un faux négatif (bébé à risque non détecté) est cliniquement deux fois plus coûteux qu'un faux positif (fausse alerte). `β=2` pondère le recall deux fois plus que la précision, reflétant cette asymétrie.
+
+---
+
+## 8. Données et Notebooks
+
+### Datasets générés
+
+| Fichier | Description | Dimensions |
+|---|---|---|
+| `data/process/processed_data_full.csv` | Dataset preprocessé complet (après sentinelles, imputation, OHE, feature engineering) | 99 900 × 37 (36 features + target) |
+| `data/process/processed_data_pca.csv` | Version réduite PCA(4 composantes, 95% variance) — exploration uniquement | 99 900 × 5 |
+| `models/preprocessor.pkl` | Pipeline scikit-learn sérialisé (`ColumnTransformer`) | — |
+
+### Comment obtenir les datasets
+
+Les datasets preprocessés sont générés par `notebooks/Preprocessing.ipynb`. Pour les reproduire :
+
+```bash
+# 1. Ouvrir et exécuter toutes les cellules du notebook
+jupyter notebook notebooks/Preprocessing.ipynb
+
+# Les fichiers sont sauvegardés automatiquement dans data/process/
+```
+
+Le notebook applique dans l'ordre : neutralisation des sentinelles → feature engineering → cap Prise_Poids → imputation → RobustScaler → OHE → sauvegarde CSV.
+
+### Comment charger et utiliser
+
+```python
+# Option 1 — via data.py (recommandé, avec PCA(10))
+from src.data import load_dataset_split
+X_train, X_test, y_train, y_test = load_dataset_split()
+
+# Option 2 — chargement direct du CSV (36 features brutes)
+import pandas as pd
+df = pd.read_csv("data/process/processed_data_full.csv")
+X = df.drop(columns=["Target_Risk"])
+y = df["Target_Risk"]
+
+# Option 3 — via le preprocessor sauvegardé (pour nouvelles données)
+import joblib
+preprocessor = joblib.load("models/preprocessor.pkl")
+X_new_transformed = preprocessor.transform(X_new_raw)
+```
+
+**Note :** `load_dataset_split()` applique un `PCA(10)` refitté sur `X_train` à chaque appel — c'est le format attendu par les 3 modèles entraînés. Utiliser directement le CSV (Option 2) retourne 36 features et nécessite d'appliquer manuellement la PCA.
