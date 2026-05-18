@@ -110,7 +110,7 @@ Compare les trois modèles entraînés :
 
 ### Page 5 — Démo — Prédiction NICU
 
-Interface de prédiction interactive organisée en **4 sections de saisie** :
+Interface de prédiction interactive organisée en **5 sections de saisie** :
 
 | Section | Variables |
 |---|---|
@@ -190,7 +190,7 @@ python scripts/main.py
 | `src/data.py` | Ajout PCA(10) dans `load_dataset_split()` + chemin relatif portable (suppression du hardcode `/Users/madeleine/...`) |
 | `src/metrics.py` | Ajout du F-beta β=2 (`fbeta_score(beta=2)`) comme métrique prioritaire |
 | `src/model_io.py` | Correction du chargement `.pkl` : joblib en priorité (les modèles sont sérialisés avec joblib, non compatible avec `pickle.load`) |
-| `src/app.py` | Dashboard NORA complet — 5 pages, palette pastel, 15+ graphiques commentés |
+| `src/app.py` | Dashboard NORA complet — 5 pages, palette pastel, 17 graphiques commentés |
 | `requirements.txt` | Ajout de `optuna` |
 | `.gitignore` | Ajout de `.DS_Store` |
 | `README.md` | Réécriture complète — description NORA, installation, exécution, structure |

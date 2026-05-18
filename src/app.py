@@ -315,38 +315,23 @@ def page_accueil():
     with col1:
         st.subheader("Qu'est-ce que le NICU ?")
         st.markdown("""
-        Le NICU *(Neonatal Intensive Care Unit)* accueille les nouveau-nés qui nécessitent
-        une surveillance médicale intense : prématurité sévère, détresse respiratoire,
-        complications liées à des pathologies maternelles ou obstétricales.
-
-        Un séjour en NICU représente un coût moyen de **3 000 à 100 000 USD**, une charge
-        émotionnelle considérable pour les familles, et mobilise des ressources hospitalières limitées.
+        Le NICU *(Neonatal Intensive Care Unit)* accueille les nouveau-nés en détresse : prématurité, complications obstétricales, pathologies maternelles.
+        Un séjour représente un coût de **3 000 à 100 000 USD** et mobilise des ressources hospitalières critiques.
         """)
         st.subheader("À quoi sert NORA ?")
         st.markdown("""
-        NORA permet aux professionnels de santé d'**identifier dès la grossesse** les mères
-        dont le bébé présente un risque élevé d'admission en NICU, afin de :
-
-        - Intensifier le suivi prénatal ciblé
-        - Planifier des ressources néonatales en amont
-        - Orienter vers des spécialistes en médecine fœtale
+        Identifier **dès la grossesse** les mères à risque élevé pour :
+        - Intensifier le suivi prénatal
+        - Planifier les ressources néonatales
         - Prioriser les interventions de prévention
         """)
 
     with col2:
         st.subheader("Le défi")
         st.markdown(f"""
-        Sur **{total:,} naissances** analysées (CDC Natality 2018), seulement
-        **{rate:.1f}% aboutissent à une admission NICU** — ce déséquilibre fort
-        rend la prédiction techniquement difficile.
-
-        Un modèle naïf qui prédit "jamais NICU" atteindrait 91% de précision globale
-        tout en manquant **100% des vrais cas à risque** — inacceptable en contexte médical.
-        """)
-        st.markdown("""
-        NORA utilise une combinaison de **SMOTE** (augmentation des cas rares),
-        de **PCA** (réduction dimensionnelle) et d'un **Random Forest** optimisé
-        pour détecter **76.6% des bébés à risque** tout en limitant les faux positifs.
+        Seulement **{rate:.1f}%** des naissances aboutissent à une admission NICU —
+        un modèle naïf atteindrait 91% d'accuracy en prédisant toujours "non", sans jamais détecter un cas réel.
+        NORA utilise **SMOTE + PCA + Random Forest** pour détecter **76.6% des bébés à risque**.
         """)
         st.markdown(f"""
         <div class="kpi-row">
@@ -369,33 +354,24 @@ def page_accueil():
         st.markdown("""
         <div class="demo-section">
           <div class="demo-section-title">Données</div>
-          <p><strong>CDC Natality 2018</strong> — base nationale américaine des certificats de naissance,
-          centralisée par le NCHS (National Center for Health Statistics).</p>
-          <p>NORA utilise un échantillon représentatif de <strong>99 900 naissances</strong>
-          sur les 3,8 millions disponibles. Les colonnes brutes ont été renommées
-          depuis les codes CDC techniques vers des labels métier lisibles.</p>
+          <p><strong>CDC Natality 2018</strong> — certificats de naissance américains, centralisés par le NCHS.</p>
+          <p>Échantillon de <strong>99 900 naissances</strong> sur 3,8 millions disponibles.</p>
         </div>
         """, unsafe_allow_html=True)
     with c2:
         st.markdown("""
         <div class="demo-section">
           <div class="demo-section-title">Quand utiliser NORA ?</div>
-          <p>Le modèle est applicable à partir du <strong>2e ou 3e trimestre</strong> de grossesse,
-          une fois que les complications gestationnelles sont diagnostiquées
-          (éclampsie, HTA, diabète gestationnel).</p>
-          <p>Il n'est <strong>pas conçu</strong> pour le tout début de grossesse,
-          où ces informations ne sont pas encore disponibles.</p>
+          <p>À partir du <strong>2e ou 3e trimestre</strong>, une fois les complications gestationnelles diagnostiquées (éclampsie, HTA, diabète).</p>
+          <p>Non applicable en tout début de grossesse.</p>
         </div>
         """, unsafe_allow_html=True)
     with c3:
         st.markdown("""
         <div class="demo-section">
           <div class="demo-section-title">Limites connues</div>
-          <p>Le dataset CDC ne contient pas de <strong>données biologiques</strong>
-          (bilans sanguins, marqueurs sériques, échographies) ni de données
-          génétiques — facteurs pourtant parmi les plus prédictifs cliniquement.</p>
-          <p>Les performances de NORA sont donc <strong>sous-estimées</strong>
-          par rapport à ce qu'un modèle sur données hospitalières complètes pourrait atteindre.</p>
+          <p>Absence de <strong>données biologiques</strong> (bilans sanguins, marqueurs sériques) — facteurs parmi les plus prédictifs cliniquement.</p>
+          <p>Les performances sont donc <strong>sous-estimées</strong> par rapport à des données hospitalières complètes.</p>
         </div>
         """, unsafe_allow_html=True)
 
@@ -413,41 +389,28 @@ def page_accueil():
         st.markdown("""
         <div class="demo-section" style="border-top:3px solid #C8B5E8;">
           <div class="demo-section-title">Données (EDA)</div>
-          <p>Exploration statistique du dataset :</p>
-          <p>— Distribution de la cible et <strong>déséquilibre des classes</strong></p>
-          <p>— Taux NICU par facteur de risque</p>
-          <p>— Distributions des variables continues</p>
-          <p>— Corrélations avec la cible</p>
+          <p>Déséquilibre des classes, taux NICU par facteur de risque, distributions, corrélations.</p>
         </div>
         """, unsafe_allow_html=True)
     with c2:
         st.markdown("""
         <div class="demo-section" style="border-top:3px solid #F5C8A5;">
           <div class="demo-section-title">Feature Engineering</div>
-          <p>Traitement des variables :</p>
-          <p>— Variables médicales à <strong>fort signal</strong> (×2 à ×10)</p>
-          <p>— Variables dérivées créées manuellement</p>
-          <p>— Pipeline complet : imputation, scaling, OHE, SMOTE, PCA</p>
+          <p>Variables médicales à <strong>fort signal</strong> (×2 à ×10), variables dérivées, pipeline complet.</p>
         </div>
         """, unsafe_allow_html=True)
     with c3:
         st.markdown("""
         <div class="demo-section" style="border-top:3px solid #A5D9C5;">
           <div class="demo-section-title">Modèles</div>
-          <p>Comparaison des approches :</p>
-          <p>— Métrique F-beta β=2 et sa <strong>justification médicale</strong></p>
-          <p>— 3 modèles testés avec leurs résultats</p>
-          <p>— Courbes ROC, matrices de confusion, optimisation Optuna</p>
+          <p>3 modèles comparés sur F-beta β=2 — courbes ROC, matrices de confusion, Optuna.</p>
         </div>
         """, unsafe_allow_html=True)
     with c4:
         st.markdown("""
         <div class="demo-section" style="border-top:3px solid #E8A5B0;">
           <div class="demo-section-title">Démo</div>
-          <p>Prédiction interactive :</p>
-          <p>— Saisissez le <strong>profil clinique</strong> d'une mère</p>
-          <p>— NORA estime la probabilité d'admission NICU</p>
-          <p>— Affichage des facteurs de risque identifiés</p>
+          <p>Saisissez un profil maternel — NORA calcule la probabilité NICU en temps réel.</p>
         </div>
         """, unsafe_allow_html=True)
 
@@ -474,37 +437,19 @@ def page_eda():
     with col2:
         st.markdown("<br>", unsafe_allow_html=True)
         st.markdown(f"""
-        Sur **{total:,} naissances**, seulement **{n_pos:,} ({rate:.1f}%)** aboutissent
-        à une admission en NICU. Ce déséquilibre fort est le premier défi technique du projet.
+        Seulement **{n_pos:,} ({rate:.1f}%)** admissions NICU sur {total:,} naissances — un modèle naïf atteint 91% d'accuracy en prédisant toujours "non", sans détecter un seul cas.
 
-        **Pourquoi c'est un problème ?**
-        Un algorithme entraîné "naïvement" va apprendre à tout prédire comme "pas de NICU"
-        et atteindre 91% d'accuracy sans jamais détecter un seul bébé à risque.
-
-        **Comment NORA le gère ?**
-        
-        — **SMOTE** : génère des exemples synthétiques de la classe minoritaire pour
-        équilibrer les données d'entraînement des modèles non-linéaires.
-
-        — **Seuil optimisé à 0.16** : au lieu d'utiliser le seuil par défaut de 0.50,
-        le seuil est ajusté pour favoriser la détection des cas positifs.
-
-        — **Métrique F-beta β=2** : l'objectif d'optimisation pénalise 2× plus
-        les bébés à risque non détectés que les faux positifs.
+        **NORA contourne ce biais via :**
+        - **SMOTE** — génère des exemples synthétiques pour équilibrer les classes
+        - **Seuil 0.16** — abaissé depuis 0.50 pour favoriser la détection
+        - **F-beta β=2** — pénalise 2× plus les bébés à risque non détectés
         """)
 
     st.markdown('<hr class="soft">', unsafe_allow_html=True)
 
     # ── 2. Taux NICU par facteur ─────────────────────────────────────────────
     st.subheader("Taux NICU par facteur de risque")
-    st.markdown("""
-    Ce graphique montre le **taux d'admission NICU observé** pour chaque facteur de risque identifié.
-    La ligne pointillée représente le taux de base (8.9%) — c'est la référence pour mesurer l'ampleur du signal.
-
-    **Lecture :** une mère avec une grossesse triple a un risque de NICU **×10 supérieur** à la moyenne.
-    À l'inverse, les variables comportementales comme l'âge ou l'IMC ont une corrélation < 0.05 avec la cible
-    — elles contribuent peu seules, mais complètent le signal des variables médicales.
-    """)
+    st.markdown("Taux d'admission observé par variable — la ligne pointillée est le taux de base (8.9%). Une grossesse triple atteint **×10** la moyenne.")
     st.plotly_chart(nicu_rates_chart(), use_container_width=True)
 
     st.markdown('<hr class="soft">', unsafe_allow_html=True)
@@ -513,50 +458,25 @@ def page_eda():
     col_a, col_b = st.columns(2)
     with col_a:
         st.subheader("Distributions des variables continues")
-        st.markdown("""
-        Les variables numériques présentent des **distributions fortement asymétriques** :
-        la majorité des mères ne fument pas (Tabac = 0), ont une prise de poids normale,
-        et commencent leur suivi tôt. Les **outliers médicaux sont légitimes** (IMC > 50, âge > 45)
-        et ne doivent pas être supprimés d'où le choix du **RobustScaler** plutôt que StandardScaler.
-        """)
+        st.markdown("Distributions asymétriques avec outliers médicaux légitimes (IMC > 50, âge > 45) — justifie le choix du **RobustScaler**.")
         st.image(str(PLOTS_DIR / "2_distributions_continues.png"), use_container_width=True)
     with col_b:
         st.subheader("Matrice de corrélations")
-        st.markdown("""
-        La matrice confirme la **faiblesse des corrélations linéaires** entre les variables de base
-        et la cible (toutes < 0.05). Ce n'est pas un problème, cela justifie l'utilisation
-        d'un modèle non-linéaire (Random Forest) capable de capturer des interactions complexes
-        entre variables, et l'ajout de **nouvelles variables médicales** à plus fort signal.
-        """)
+        st.markdown("Corrélations des variables de base toutes < 0.05 avec la cible — justifie un modèle **non-linéaire** et l'ajout de variables médicales à plus fort signal.")
         st.image(str(PLOTS_DIR / "5_correlations.png"), use_container_width=True)
 
     st.markdown('<hr class="soft">', unsafe_allow_html=True)
 
     # ── 4. Variables catégorielles ───────────────────────────────────────────
     st.subheader("Variables catégorielles vs taux NICU")
-    st.markdown("""
-    Pour chaque variable catégorielle, ce graphique affiche le **taux d'admission NICU
-    selon la modalité** (Oui / Non / Inconnu). On observe clairement que les modalités
-    "Oui" pour les complications (éclampsie, HTA, PMA…) correspondent systématiquement
-    à des taux bien supérieurs à la base. La modalité "Inconnu" (U) produit parfois
-    un taux intermédiaire — ces réponses manquantes ne sont pas neutres et apportent
-    elles aussi un signal indirect.
-    """)
+    st.markdown("Taux NICU par modalité (Oui/Non/Inconnu) — les complications (éclampsie, HTA, PMA) montrent systématiquement un taux bien supérieur à la base.")
     st.image(str(PLOTS_DIR / "4_categoriques_vs_risque.png"), use_container_width=True)
 
     st.markdown('<hr class="soft">', unsafe_allow_html=True)
 
     # ── 5. Tabac vs risque ───────────────────────────────────────────────────
     st.subheader("Tabac & comportement maternel")
-    st.markdown("""
-    Ce graphique analyse l'impact du **comportement tabagique** sur le risque NICU.
-    Trois angles sont explorés : la consommation avant grossesse, l'évolution au 1er trimestre,
-    et la persistance au 3e trimestre.
-
-    **Point clé :** la corrélation du tabac avec la cible reste faible (< 0.15) comparée
-    aux variables médicales (éclampsie ×3, grossesse multiple ×10). Le tabac contribue
-    marginalement au modèle, mais reste pertinent comme signal comportemental cumulatif.
-    """)
+    st.markdown("Impact du tabac avant grossesse, au T1 et au T3 — signal faible (< 0.15) comparé aux variables médicales, mais pertinent comme indicateur comportemental cumulatif.")
     st.image(str(PLOTS_DIR / "3_tabac_vs_risque.png"), use_container_width=True)
 
     st.markdown('<hr class="soft">', unsafe_allow_html=True)
@@ -565,42 +485,18 @@ def page_eda():
     col_mv, col_mv2 = st.columns([1, 1])
     with col_mv:
         st.subheader("Valeurs manquantes & sentinelles CDC")
-        st.markdown("""
-        Le CDC n'utilise pas de `NaN` natifs — il encode les non-réponses avec des
-        **codes numériques sentinelles** (`9`, `99`, `99.9`). Sans traitement, ces valeurs
-        seraient interprétées comme de vraies données (ex : 99 cigarettes/jour).
-
-        Ce graphique montre le **taux de valeurs manquantes réel** après identification
-        et neutralisation des sentinelles. La variable `Assurance` et les variables tabac
-        présentent les taux les plus élevés, ce qui justifie l'imputation par la médiane/mode.
-        """)
+        st.markdown("Le CDC encode les non-réponses par des codes numériques (`9`, `99`, `99.9`) — neutralisés en `NaN` avant toute transformation. Ce graphique montre les taux réels après traitement.")
         st.image(str(PLOTS_DIR / "0_missing_values.png"), use_container_width=True)
     with col_mv2:
         st.subheader("Distribution de la cible")
-        st.markdown("""
-        La distribution de la variable cible confirme le **déséquilibre sévère** :
-        ~91% de cas négatifs (pas d'admission NICU) contre ~9% de positifs.
-
-        Ce ratio est représentatif de la réalité clinique — il ne s'agit pas d'un artefact
-        du dataset. Ce déséquilibre est intentionnellement conservé dans le jeu de test
-        pour évaluer les modèles en conditions réelles.
-        """)
+        st.markdown("~91% de cas négatifs / ~9% positifs — déséquilibre réel conservé dans le jeu de test pour évaluer les modèles en conditions cliniques.")
         st.image(str(PLOTS_DIR / "1_distribution_target.png"), use_container_width=True)
 
     st.markdown('<hr class="soft">', unsafe_allow_html=True)
 
     # ── 7. Analyse multivariée ───────────────────────────────────────────────
     st.subheader("Analyse multivariée")
-    st.markdown("""
-    Ce graphique en matrice de scatter plots visualise les **relations entre paires de variables**,
-    colorées selon l'admission NICU (rose = admis, bleu = non admis).
-
-    **Observation principale :** les deux classes se **mélangent fortement** dans chaque projection —
-    il n'y a pas de séparation linéaire claire entre variables deux à deux. C'est précisément pourquoi
-    un modèle linéaire (Logistic Regression) obtient un recall de seulement 35% : les patterns
-    discriminants se trouvent dans les **interactions à n dimensions**, que seul le Random Forest
-    parvient à capturer efficacement.
-    """)
+    st.markdown("Scatter matrix des variables colorées par classe NICU — les deux classes se mélangent dans toutes les projections, confirmant l'**absence de séparation linéaire** et la nécessité d'un modèle non-linéaire.")
     st.image(str(PLOTS_DIR / "6_multivariate.png"), use_container_width=True)
 
 
@@ -613,11 +509,7 @@ def page_feature_engineering():
 
     st.markdown('<hr class="soft">', unsafe_allow_html=True)
     st.subheader("Variables à fort signal médical")
-    st.markdown("""
-    L'analyse EDA a révélé que les variables de base (âge, IMC, tabac) ont des corrélations
-    inférieures à 0.05 avec la cible. L'enrichissement avec des variables médicales disponibles
-    dans le dataset CDC a multiplié le signal prédictif par 1.4 à 10×.
-    """)
+    st.markdown("Les variables de base (âge, IMC, tabac) ont des corrélations < 0.05 avec la cible. Les variables médicales CDC multiplient le signal de **×1.4 à ×10**.")
     st.markdown("""
     <table class="feat-table">
     <tr><th>Variable</th><th>Source CDC</th><th>Taux NICU</th><th>Signal vs base (8.9%)</th></tr>
@@ -649,39 +541,25 @@ def page_feature_engineering():
         st.markdown("""
         <div class="demo-section" style="border-top:3px solid #E8A5B0;">
           <div class="demo-section-title">Evol_Tabac</div>
-          <p style="font-family:monospace;font-size:0.85rem;color:#5C4B6B;background:#F8F4FC;padding:6px 10px;border-radius:6px;">
-            Tabac_Trim1 − Tabac_Avant</p>
-          <p>Capture le <strong>changement de comportement tabagique</strong> entre
-          la période pré-grossesse et le 1er trimestre.</p>
-          <p>— Valeur <strong>négative</strong> : arrêt ou réduction (protecteur)<br>
-          — Valeur <strong>positive</strong> : augmentation (signal d'alerte)<br>
-          — Valeur <strong>0</strong> : comportement stable (93.7% des cas)</p>
+          <p style="font-family:monospace;font-size:0.85rem;color:#5C4B6B;background:#F8F4FC;padding:6px 10px;border-radius:6px;">Tabac_Trim1 − Tabac_Avant</p>
+          <p>Capture le changement de comportement tabagique entre avant et pendant la grossesse.<br>
+          <strong>−</strong> réduction · <strong>+</strong> aggravation · <strong>0</strong> stable (93.7% des cas)</p>
         </div>
         """, unsafe_allow_html=True)
     with c2:
         st.markdown("""
         <div class="demo-section" style="border-top:3px solid #A5D9C5;">
           <div class="demo-section-title">Suivi_T1</div>
-          <p style="font-family:monospace;font-size:0.85rem;color:#5C4B6B;background:#F8F4FC;padding:6px 10px;border-radius:6px;">
-            1 si Mois_Debut_Suivi ≤ 3</p>
-          <p>Variable binaire indiquant si le suivi prénatal a débuté
-          <strong>durant le 1er trimestre</strong>.</p>
-          <p>Proxy pour la <strong>précocité d'accès aux soins</strong> —
-          facteur de protection reconnu dans la littérature médicale.
-          Un suivi tardif est corrélé à une prise en charge sous-optimale.</p>
+          <p style="font-family:monospace;font-size:0.85rem;color:#5C4B6B;background:#F8F4FC;padding:6px 10px;border-radius:6px;">1 si Mois_Debut_Suivi ≤ 3</p>
+          <p>Proxy de la <strong>précocité d'accès aux soins</strong> — un suivi dès le 1er trimestre est un facteur de protection reconnu.</p>
         </div>
         """, unsafe_allow_html=True)
     with c3:
         st.markdown("""
         <div class="demo-section" style="border-top:3px solid #C8B5E8;">
           <div class="demo-section-title">Grossesse_Multiple</div>
-          <p style="font-family:monospace;font-size:0.85rem;color:#5C4B6B;background:#F8F4FC;padding:6px 10px;border-radius:6px;">
-            1 si dplural &gt; 1</p>
-          <p>Variable binaire dérivée du code CDC <code>dplural</code>
-          (nombre de fœtus). <strong>Signal le plus discriminant du dataset.</strong></p>
-          <p>— Jumeaux : <strong>37.5%</strong> d'admission NICU<br>
-          — Triplets : <strong>87.5%</strong> d'admission NICU<br>
-          — vs base : <strong>×4 à ×10</strong></p>
+          <p style="font-family:monospace;font-size:0.85rem;color:#5C4B6B;background:#F8F4FC;padding:6px 10px;border-radius:6px;">1 si dplural &gt; 1</p>
+          <p><strong>Signal le plus discriminant</strong> du dataset — jumeaux : 37.5% NICU, triplets : 87.5% (×4 à ×10 vs base).</p>
         </div>
         """, unsafe_allow_html=True)
 
@@ -725,25 +603,11 @@ def page_feature_engineering():
     col_pca, col_poids = st.columns(2)
     with col_pca:
         st.subheader("Variance expliquée par la PCA")
-        st.markdown("""
-        Ce graphique montre la **variance cumulée** capturée selon le nombre de composantes PCA.
-        La courbe se stabilise très rapidement : **10 composantes suffisent à conserver 99.3%
-        de l'information** contenue dans les 36 colonnes originales.
-
-        Cela justifie la réduction dimensionnelle : les 26 colonnes OHE issues du One-Hot Encoding
-        créent beaucoup de redondance — la PCA les compresse efficacement.
-        """)
+        st.markdown("**10 composantes capturent 99.3%** de la variance des 36 colonnes originales — la redondance OHE est éliminée efficacement.")
         st.image(str(PLOTS_DIR / "preprocessing_pca_variance.png"), use_container_width=True)
     with col_poids:
         st.subheader("Prise de poids — après nettoyage")
-        st.markdown("""
-        La prise de poids présente des **valeurs aberrantes cliniques** (> 80 lbs ou négatives)
-        qui ne correspondent pas à des non-réponses CDC, mais à de vraies erreurs de saisie.
-        Ces valeurs sont remplacées par `NaN` puis imputées par la médiane.
-
-        Ce graphique montre la distribution **après nettoyage**, confirmant que les valeurs
-        restantes respectent les recommandations médicales IOM [0–80 lbs].
-        """)
+        st.markdown("Les valeurs hors plage [0–80 lbs] (erreurs cliniques, pas des sentinelles) sont remplacées par `NaN` et imputées — distribution finale conforme aux recommandations IOM.")
         st.image(str(PLOTS_DIR / "poids_bins.png"), use_container_width=True)
 
 
@@ -754,10 +618,7 @@ def page_models():
     st.title("Modèles & Évaluation")
 
     st.subheader("Métrique — F-beta β=2")
-    st.markdown("""
-    Avec ~9% de positifs et des coûts asymétriques (FN >> FP), l'Accuracy est trompeuse.
-    Le Recall pur incite à prédire tout positif. **F-beta β=2** équilibre les deux :
-    """)
+    st.markdown("L'Accuracy est trompeuse à 9% de positifs. Le **F-beta β=2** pondère le Recall 2× plus que la Précision — un bébé non détecté coûte plus qu'une fausse alerte.")
     st.markdown("""
     <div class="formula-box">
       <span style="color:#7A8B99;font-size:0.82rem;">OBJECTIF D'OPTIMISATION</span><br><br>
@@ -772,23 +633,14 @@ def page_models():
 
     # ── Les 3 modèles ────────────────────────────────────────────────────────
     st.subheader("Les trois modèles testés")
-    st.markdown(
-        "Trois approches ont été comparées, choisies pour couvrir un spectre de complexité "
-        "croissante : de la baseline linéaire interprétable jusqu'à l'optimisation automatisée."
-    )
 
     c1, c2, c3 = st.columns(3)
     with c1:
         st.markdown("""
         <div class="demo-section" style="border-top:4px solid #C8B5E8;">
           <div class="demo-section-title">1 · Régression Logistique &nbsp; Baseline</div>
-          <p><strong>Principe :</strong> le modèle trace une frontière de décision linéaire
-          dans l'espace PCA à 10 dimensions. C'est la référence à battre.</p>
-          <p><strong>Gestion du déséquilibre :</strong> pas de SMOTE (cause une dégénérescence
-          avec ce type de modèle). Le déséquilibre est géré uniquement par l'optimisation
-          du seuil de classification.</p>
-          <p><strong>Limite principale :</strong> incapable de capturer les interactions
-          non-linéaires entre variables médicales. Trop simple pour ce type de données.</p>
+          <p>Frontière linéaire dans PCA(10). Pas de SMOTE — le seuil seul gère le déséquilibre.</p>
+          <p><strong>Limite :</strong> incapable de capturer les interactions non-linéaires.</p>
         </div>
         """, unsafe_allow_html=True)
     with c2:
@@ -797,26 +649,16 @@ def page_models():
           <div class="demo-section-title">2 · Random Forest &nbsp;
             <span style="background:#E8F5E9;color:#2E7D32;padding:2px 8px;border-radius:8px;font-size:0.7rem;font-weight:700;">Retenu</span>
           </div>
-          <p><strong>Principe :</strong> ensemble de 100 arbres de décision entraînés
-          en parallèle sur des sous-échantillons aléatoires. La prédiction finale est
-          la moyenne des probabilités de chaque arbre.</p>
-          <p><strong>Gestion du déséquilibre :</strong> SMOTE appliqué avant l'entraînement
-          pour équilibrer les classes. Le seuil est ensuite optimisé sur F-beta β=2.</p>
-          <p><strong>Atout principal :</strong> naturellement robuste aux outliers médicaux
-          et capable de capturer des interactions complexes entre variables.</p>
+          <p>100 arbres en parallèle sur sous-échantillons. SMOTE + PCA(10) + seuil optimisé F-beta β=2.</p>
+          <p><strong>Atout :</strong> robuste aux outliers, capture les interactions complexes.</p>
         </div>
         """, unsafe_allow_html=True)
     with c3:
         st.markdown("""
         <div class="demo-section" style="border-top:4px solid #F5C8A5;">
           <div class="demo-section-title">3 · HistGradientBoosting + Optuna</div>
-          <p><strong>Principe :</strong> boosting séquentiel — chaque arbre corrige
-          les erreurs du précédent. Les hyperparamètres sont optimisés automatiquement
-          via Optuna (25 essais, 3-fold cross-validation).</p>
-          <p><strong>Gestion du déséquilibre :</strong> SMOTE et PCA sont intégrés
-          dans le pipeline de validation croisée pour éviter tout data leakage.</p>
-          <p><strong>Limite :</strong> le seuil optimal trouvé est très conservateur
-          (0.46), ce qui réduit le recall en contexte médical.</p>
+          <p>Boosting séquentiel, hyperparamètres optimisés via Optuna (25 trials, CV=3).</p>
+          <p><strong>Note :</strong> seuil conservateur (0.46) — moins de FP, recall légèrement inférieur.</p>
         </div>
         """, unsafe_allow_html=True)
 
@@ -824,11 +666,7 @@ def page_models():
 
     # ── Tableau comparatif ───────────────────────────────────────────────────
     st.subheader("Tableau comparatif des résultats")
-    st.markdown(
-        "Toutes les métriques sont calculées sur le **jeu de test** (20% des données, "
-        "jamais vu pendant l'entraînement). Le seuil de chaque modèle est optimisé "
-        "indépendamment sur F-beta β=2."
-    )
+    st.markdown("Métriques sur le **jeu de test** (20%, jamais vu pendant l'entraînement). Seuil optimisé indépendamment par F-beta β=2.")
     st.markdown("""
     <table class="feat-table" style="text-align:center;">
       <tr>
@@ -874,27 +712,17 @@ def page_models():
     col1, col2 = st.columns([1.3, 1])
     with col1:
         st.subheader("Comparaison visuelle des métriques")
-        st.markdown(
-            "Ce graphique illustre côte à côte les trois métriques clés pour chaque modèle. "
-            "Le **Recall** (en rose) est la métrique à surveiller en priorité : "
-            "le Random Forest domine avec 0.766, soit **+41 points** au-dessus de la baseline."
-        )
+        st.markdown("Recall (rose) en priorité — le Random Forest domine à **0.766**, soit **+41 pts** vs la baseline.")
         st.plotly_chart(model_comparison_chart(), use_container_width=True)
     with col2:
         st.subheader("Protocole d'évaluation")
         st.markdown("""
         <div class="demo-section">
-          <div class="demo-section-title">Rigueur anti-leakage</div>
-          <p><strong>Split 80/20 stratifié</strong> (seed 42) : le jeu de test est mis
-          de côté dès le début et n'intervient jamais pendant l'entraînement.</p>
-          <p><strong>SMOTE dans le pipeline CV</strong> : l'augmentation des données
-          est appliquée à l'intérieur de chaque fold de validation croisée, jamais
-          avant le split — ce qui éviterait une contamination du test par les exemples synthétiques.</p>
-          <p><strong>PCA avant SMOTE</strong> : la réduction dimensionnelle est apprise
-          sur les données originales uniquement, pour que les exemples synthétiques
-          n'influencent pas les axes principaux.</p>
-          <p><strong>Seuil optimisé sur F-beta β=2</strong> par grid search entre 0.10 et 0.90,
-          évalué exclusivement sur le jeu de test.</p>
+          <div class="demo-section-title">Protocole anti-leakage</div>
+          <p><strong>Split 80/20 stratifié</strong> — jeu de test mis de côté dès le début.</p>
+          <p><strong>SMOTE dans le pipeline CV</strong> — jamais avant le split.</p>
+          <p><strong>PCA fitté sur X_train original</strong> — avant SMOTE, pour ne pas biaiser les axes.</p>
+          <p><strong>Seuil optimisé sur F-beta β=2</strong> — grid search [0.10–0.90] sur test uniquement.</p>
         </div>
         """, unsafe_allow_html=True)
         st.markdown("""
@@ -909,24 +737,14 @@ def page_models():
 
     # ── Comparaison notebook ─────────────────────────────────────────────────
     st.subheader("Vue d'ensemble — comparaison notebook")
-    st.markdown("""
-    Ce graphique issu du notebook de modélisation présente deux angles complémentaires :
-    à gauche, les **quatre métriques clés** côte à côte pour chaque modèle ; à droite,
-    le **F-beta β=2** seul, qui est la métrique de sélection finale.
-    La lecture combinée des deux panels confirme le Random Forest comme meilleur compromis global.
-    """)
+    st.markdown("Quatre métriques côte à côte (gauche) et F-beta β=2 seul (droite) — le Random Forest domine sur les deux panels.")
     st.image(str(PLOTS_DIR / "comparaison_modeles.png"), use_container_width=True)
 
     st.markdown('<hr class="soft">', unsafe_allow_html=True)
 
     # ── Triptyques des 3 modèles ─────────────────────────────────────────────
     st.subheader("Analyse de performance — les 3 modèles")
-    st.markdown("""
-    Chaque triptyque évalue un modèle sous trois angles : **matrice de confusion** (gauche),
-    **courbe Précision-Rappel** (centre) et **courbe ROC** (droite).
-    Les Faux Négatifs (bébés à risque non détectés) sont mis en évidence en rouge — c'est la case
-    à minimiser en priorité.
-    """)
+    st.markdown("Matrice de confusion · Courbe PR · Courbe ROC — les Faux Négatifs (rouge) sont la case à minimiser.")
 
     tab1, tab2, tab3 = st.tabs([
         "1 · Régression Logistique — Baseline",
@@ -939,12 +757,7 @@ def page_models():
         Seuil optimisé : <strong>0.10</strong> — Recall : <strong>0.354</strong> — F-beta β=2 : <strong>0.259</strong>
         </div>
         """, unsafe_allow_html=True)
-        st.markdown("""
-        La régression logistique trace une **frontière linéaire** dans l'espace PCA(10).
-        Le seuil très bas (0.10) est nécessaire pour capturer une fraction des cas positifs,
-        mais génère de nombreux faux positifs. La courbe ROC et la courbe PR confirment
-        une **discrimination globalement faible** — les classes ne sont pas linéairement séparables.
-        """)
+        st.markdown("Frontière linéaire — seuil 0.10 nécessaire pour capturer des cas positifs, mais discrimination faible confirmée par la courbe PR.")
         st.image(str(PLOTS_DIR / "model1_logistic_regression.png"), use_container_width=True)
     with tab2:
         st.markdown("""
@@ -952,12 +765,7 @@ def page_models():
         Seuil optimisé : <strong>0.16</strong> — Recall : <strong>0.766</strong> — F-beta β=2 : <strong>0.350</strong> ✓ Meilleur
         </div>
         """, unsafe_allow_html=True)
-        st.markdown("""
-        Le Random Forest obtient le **meilleur recall** (76.6%) : sur 100 bébés à risque,
-        77 sont détectés. Le seuil de 0.16 est volontairement bas pour maximiser la détection
-        au détriment d'un excès de faux positifs — choix cohérent avec le contexte médical
-        où manquer un vrai cas est le coût le plus grave.
-        """)
+        st.markdown("Sur 100 bébés à risque, **77 sont détectés**. Seuil 0.16 volontairement bas — manquer un cas réel est le coût le plus grave.")
         st.image(str(PLOTS_DIR / "model2_random_forest.png"), use_container_width=True)
     with tab3:
         st.markdown("""
@@ -965,36 +773,19 @@ def page_models():
         Seuil optimisé : <strong>0.46</strong> — Recall : <strong>0.698</strong> — F-beta β=2 : <strong>0.337</strong>
         </div>
         """, unsafe_allow_html=True)
-        st.markdown("""
-        Le HistGBM présente un recall légèrement inférieur (69.8%) mais un seuil beaucoup
-        plus conservateur (0.46), ce qui réduit les faux positifs. En pratique clinique à
-        **ressources limitées**, ce modèle offrirait un meilleur équilibre détection/coût.
-        La courbe PR montre une aire sous la courbe comparable au Random Forest.
-        """)
+        st.markdown("Recall 69.8% — seuil plus conservateur (0.46) qui réduit les faux positifs. Aire sous la courbe PR comparable au Random Forest.")
         st.image(str(PLOTS_DIR / "model3_histgbm_optuna.png"), use_container_width=True)
 
     st.markdown('<hr class="soft">', unsafe_allow_html=True)
     st.subheader("Visualisations complémentaires")
-    st.markdown(
-        "Deux graphiques additionnels pour approfondir l'analyse : "
-        "la convergence de l'optimisation Optuna et un benchmark rapide de 25 algorithmes."
-    )
     col3, col4 = st.columns(2)
     with col3:
         st.markdown("**Convergence Optuna (HistGBM)**")
-        st.markdown("""
-        Optuna est un framework d'**optimisation bayésienne des hyperparamètres**.
-        Ce graphique montre l'évolution du score **F-beta β=2** au fil des 25 essais.
-        La convergence est rapide — la plupart du gain est obtenu dès les 10 premiers trials.
-        """)
+        st.markdown("Évolution du F-beta β=2 sur 25 trials — convergence rapide, la majorité du gain est obtenu dès les 10 premiers essais.")
         st.image(str(PLOTS_DIR / "model3_optuna.png"), use_container_width=True)
     with col4:
         st.markdown("**Benchmark LazyPredict — 25 classifieurs**")
-        st.markdown("""
-        LazyPredict entraîne automatiquement **25 algorithmes** sur 8 000 lignes sans tuning.
-        Il confirme que Random Forest et Gradient Boosting dominent, ce qui valide le choix
-        de ces deux modèles. Scores sans SMOTE ni seuil optimisé — à interpréter en référence.
-        """)
+        st.markdown("25 algorithmes entraînés sans tuning sur 8 000 lignes — confirme que RF et GBM dominent, validant le choix de ces deux modèles.")
         st.image(str(PLOTS_DIR / "lazypredict_benchmark.png"), use_container_width=True)
 
 
