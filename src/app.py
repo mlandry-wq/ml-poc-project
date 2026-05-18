@@ -4,7 +4,6 @@ from __future__ import annotations
 import warnings
 warnings.filterwarnings("ignore")
 
-import numpy as np
 import pandas as pd
 import joblib
 import streamlit as st
@@ -947,6 +946,126 @@ def page_demo(preprocessor, model_rf, pca):
 
 
 # ══════════════════════════════════════════════════════════════════════════════
+# PAGE : LIMITES
+# ══════════════════════════════════════════════════════════════════════════════
+def page_limites():
+    st.title("Limites & Perspectives")
+    st.markdown("Recensement honnête des contraintes du projet — données, modèle et périmètre d'utilisation.")
+
+    st.markdown('<hr class="soft">', unsafe_allow_html=True)
+
+    # ── 1. Limites du dataset ────────────────────────────────────────────────
+    st.subheader("Limites du dataset")
+    c1, c2 = st.columns(2)
+    with c1:
+        st.markdown("""
+        <div class="demo-section" style="border-top:4px solid #E8A5B0;">
+          <div class="demo-section-title">Données manquantes — biologiques</div>
+          <p>Le dataset CDC ne contient <strong>aucune donnée biologique</strong> :
+          bilans sanguins, marqueurs sériques, échographies, données génétiques.</p>
+          <p>Ces facteurs sont cliniquement parmi les plus prédictifs du risque NICU —
+          leur absence constitue le <strong>plafond de performance</strong> du modèle (~76% recall).</p>
+        </div>
+        """, unsafe_allow_html=True)
+    with c2:
+        st.markdown("""
+        <div class="demo-section" style="border-top:4px solid #F5C8A5;">
+          <div class="demo-section-title">Population — biais géographique</div>
+          <p>Le dataset couvre exclusivement les <strong>naissances américaines en 2018</strong>
+          (certificats CDC). Les résultats peuvent ne pas se généraliser à d'autres
+          systèmes de santé, pratiques obstétricales ou populations.</p>
+          <p>Le profil moyen : mère de 27.4 ans, IMC 29.7 — tout profil très éloigné
+          de cette distribution est moins bien couvert.</p>
+        </div>
+        """, unsafe_allow_html=True)
+
+    st.markdown('<hr class="soft">', unsafe_allow_html=True)
+
+    # ── 2. Limites du modèle ─────────────────────────────────────────────────
+    st.subheader("Limites du modèle")
+    c1, c2, c3 = st.columns(3)
+    with c1:
+        st.markdown("""
+        <div class="demo-section" style="border-top:4px solid #C8B5E8;">
+          <div class="demo-section-title">Interprétabilité réduite</div>
+          <p>La <strong>PCA</strong> transforme les 36 features en 10 composantes sans
+          correspondance directe avec des variables médicales.</p>
+          <p>Il est impossible d'expliquer la prédiction en termes de "cette variable
+          a contribué de X%" — un outil SHAP post-PCA serait nécessaire en production.</p>
+        </div>
+        """, unsafe_allow_html=True)
+    with c2:
+        st.markdown("""
+        <div class="demo-section" style="border-top:4px solid #A5C8E8;">
+          <div class="demo-section-title">Faux positifs élevés</div>
+          <p>Le seuil bas (<strong>0.16</strong>) génère ~8 faux positifs pour chaque
+          vrai positif détecté — soit ~9 400 alertes inutiles sur 19 980 cas de test.</p>
+          <p>Ce compromis est volontaire (contexte médical), mais il limiterait
+          l'adoption en milieu hospitalier à ressources restreintes.</p>
+        </div>
+        """, unsafe_allow_html=True)
+    with c3:
+        st.markdown("""
+        <div class="demo-section" style="border-top:4px solid #A5D9C5;">
+          <div class="demo-section-title">SMOTE — données synthétiques</div>
+          <p><strong>SMOTE</strong> génère des exemples positifs artificiels par
+          interpolation entre voisins réels. Ces exemples n'existent pas dans la
+          réalité clinique.</p>
+          <p>Les performances en production sur de nouvelles données réelles
+          pourraient être légèrement inférieures aux métriques mesurées sur le jeu de test.</p>
+        </div>
+        """, unsafe_allow_html=True)
+
+    st.markdown('<hr class="soft">', unsafe_allow_html=True)
+
+    # ── 3. Périmètre d'utilisation ───────────────────────────────────────────
+    st.subheader("Périmètre d'utilisation")
+    st.markdown("""
+    <div class="info-box" style="margin-bottom:16px;">
+    ⚕️ NORA est un <strong>outil éducatif et de recherche</strong> — il ne remplace pas un diagnostic médical ni l'avis d'un professionnel de santé.
+    </div>
+    """, unsafe_allow_html=True)
+
+    c1, c2 = st.columns(2)
+    with c1:
+        st.markdown("""
+        <div class="demo-section" style="border-top:3px solid #F5C8A5;">
+          <div class="demo-section-title">Fenêtre temporelle</div>
+          <p>Le modèle est applicable à partir du <strong>2e–3e trimestre</strong> uniquement,
+          une fois que les complications gestationnelles sont diagnostiquées
+          (éclampsie, HTA gestationnelle, diabète gestationnel).</p>
+          <p>En début de grossesse, ces variables sont inconnues — le modèle
+          ne peut pas être utilisé de façon fiable.</p>
+        </div>
+        """, unsafe_allow_html=True)
+    with c2:
+        st.markdown("""
+        <div class="demo-section" style="border-top:3px solid #C8B5E8;">
+          <div class="demo-section-title">Variables déclaratives</div>
+          <p>Plusieurs variables (tabac, aide WIC, antécédents) sont
+          <strong>auto-déclarées</strong> sur les certificats de naissance —
+          elles peuvent être sous-déclarées, notamment pour le tabac.</p>
+          <p>Un biais de déclaration systématique peut réduire la précision
+          du modèle sur certains profils sociaux.</p>
+        </div>
+        """, unsafe_allow_html=True)
+
+    st.markdown('<hr class="soft">', unsafe_allow_html=True)
+
+    # ── 4. Perspectives ──────────────────────────────────────────────────────
+    st.subheader("Perspectives d'amélioration")
+    st.markdown("""
+    | Axe | Action envisageable |
+    |---|---|
+    | **Signal** | Intégrer des données biologiques (marqueurs sériques, bilans) |
+    | **Interprétabilité** | Ajouter SHAP values post-PCA pour expliquer chaque prédiction |
+    | **Seuil** | Adapter dynamiquement le seuil selon le contexte hospitalier (ressources disponibles) |
+    | **Généralisation** | Valider sur des datasets non-américains (Europe, autres années) |
+    | **Données** | Récupérer les données post-2018 pour évaluer la stabilité temporelle du modèle |
+    """)
+
+
+# ══════════════════════════════════════════════════════════════════════════════
 # ENTRY POINT
 # ══════════════════════════════════════════════════════════════════════════════
 def build_app() -> None:
@@ -957,7 +1076,7 @@ def build_app() -> None:
 
     st.sidebar.markdown(LOGO_HTML, unsafe_allow_html=True)
     menu = st.sidebar.radio(
-        "Navigation", ["Accueil", "Données (EDA)", "Feature Engineering", "Modèles", "Démo"],
+        "Navigation", ["Accueil", "Données (EDA)", "Feature Engineering", "Modèles", "Démo", "Limites"],
         label_visibility="collapsed",
     )
 
@@ -965,7 +1084,8 @@ def build_app() -> None:
     elif menu == "Données (EDA)":       page_eda()
     elif menu == "Feature Engineering": page_feature_engineering()
     elif menu == "Modèles":             page_models()
-    else:                               page_demo(preprocessor, model_rf, pca)
+    elif menu == "Démo":                page_demo(preprocessor, model_rf, pca)
+    else:                               page_limites()
 
 
 if __name__ == "__main__":

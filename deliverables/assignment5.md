@@ -34,7 +34,7 @@ L'interface poursuit trois objectifs distincts :
 
 ## 3. Structure de l'application
 
-L'application est organisée en **5 onglets** accessibles depuis la barre de navigation latérale.
+L'application est organisée en **6 onglets** accessibles depuis la barre de navigation latérale.
 
 ```
 NORA
@@ -42,7 +42,8 @@ NORA
 ├── Données (EDA)
 ├── Feature Engineering
 ├── Modèles & Évaluation
-└── Démo — Prédiction NICU
+├── Démo — Prédiction NICU
+└── Limites
 ```
 
 ### Code source
@@ -107,6 +108,21 @@ Compare les trois modèles entraînés :
 - Protocole d'évaluation anti-leakage (split stratifié, SMOTE dans CV, PCA avant SMOTE)
 - **Triptyques de performance en onglets** — pour chacun des 3 modèles : matrice de confusion, courbe Précision-Rappel, courbe ROC
 - Convergence Optuna (HistGBM) + Benchmark LazyPredict (25 classifieurs)
+
+### Page 5 — Démo — Prédiction NICU
+
+*(voir section 5 et 6 pour le détail des inputs/outputs)*
+
+### Page 6 — Limites
+
+Recensement structuré des contraintes du projet :
+
+- **Limites du dataset** : absence de données biologiques (bilans sanguins, marqueurs sériques, génétiques) qui constituent le plafond de performance ; biais géographique (population américaine CDC 2018 uniquement)
+- **Limites du modèle** : interprétabilité réduite par la PCA (pas d'explication variable par variable), faux positifs élevés (seuil 0.16 → ~8 FP par VP), données SMOTE synthétiques pouvant légèrement surestimer les performances
+- **Périmètre d'utilisation** : applicable 2e–3e trimestre uniquement ; variables auto-déclarées susceptibles de sous-déclaration
+- **Perspectives** : intégration de données biologiques, SHAP post-PCA, adaptation du seuil au contexte hospitalier, validation sur données non-américaines
+
+---
 
 ### Page 5 — Démo — Prédiction NICU
 
@@ -190,7 +206,7 @@ python scripts/main.py
 | `src/data.py` | Ajout PCA(10) dans `load_dataset_split()` + chemin relatif portable (suppression du hardcode `/Users/madeleine/...`) |
 | `src/metrics.py` | Ajout du F-beta β=2 (`fbeta_score(beta=2)`) comme métrique prioritaire |
 | `src/model_io.py` | Correction du chargement `.pkl` : joblib en priorité (les modèles sont sérialisés avec joblib, non compatible avec `pickle.load`) |
-| `src/app.py` | Dashboard NORA complet — 5 pages, palette pastel, 17 graphiques commentés |
+| `src/app.py` | Dashboard NORA complet — 6 pages, palette pastel, 17 graphiques commentés |
 | `requirements.txt` | Ajout de `optuna` |
 | `.gitignore` | Ajout de `.DS_Store` |
 | `README.md` | Réécriture complète — description NORA, installation, exécution, structure |
