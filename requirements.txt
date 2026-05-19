@@ -2,6 +2,7 @@ folium
 holidays
 imbalanced-learn
 joblib
+lazypredict
 jupyter
 loguru
 matplotlib

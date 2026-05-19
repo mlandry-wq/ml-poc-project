@@ -323,3 +323,4 @@ logs/*
 data/*
 # Modèle RF trop lourd pour LFS gratuit GitHub (1.5GB > 1GB quota)
 models/model2_random_forest.pkl
+ml-poc-project/

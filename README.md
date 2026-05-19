@@ -10,11 +10,11 @@ NORA prédit, à partir du profil clinique et comportemental de la mère, la pro
 
 **Données :** échantillon de 99 900 naissances issu de la base **Natality 2018** du CDC (Centers for Disease Control and Prevention, États-Unis).
 
-**Problème ML :** classification binaire — `1` = admission NICU, `0` = pas d'admission. Le déséquilibre de classe (~9% positifs) est géré via SMOTE + `class_weight='balanced'`.
+**Problème ML :** classification binaire — `1` = admission NICU, `0` = pas d'admission. Le déséquilibre de classe (~9% positifs) est géré différemment selon le modèle : SMOTE + `class_weight` pour RF et HGB, threshold tuning seul pour LR.
 
 **Pipeline :** données brutes CDC → préprocesseur (imputation + RobustScaler + OHE) → 36 features → PCA(10, ~99% variance) → modèle → probabilité.
 
-**Métrique prioritaire :** Recall (minimiser les faux négatifs — bébés à risque non détectés). F-beta β=2 utilisé pour le tuning de seuil.
+**Métrique prioritaire :** F-beta β=2 — recall pondéré 2× plus que la précision (un faux négatif = bébé à risque non détecté est deux fois plus coûteux qu'un faux positif).
 
 ---
 
@@ -36,7 +36,7 @@ Le Random Forest est le modèle retenu (meilleur F-beta β=2). Les métriques af
 
 ```bash
 # Cloner le dépôt
-git clone <url-du-repo>
+git clone https://github.com/mlandry-wq/ml-poc-project.git
 cd ml-poc-project
 
 # Créer et activer l'environnement virtuel
@@ -124,10 +124,11 @@ ml-poc-project/
 
 ## Dashboard NORA
 
-L'application Streamlit propose 5 onglets :
+L'application Streamlit propose 6 onglets :
 
 - **Accueil** — contexte médical, objectifs, périmètre du modèle
 - **Données (EDA)** — distribution des variables, taux NICU par facteur de risque
 - **Feature Engineering** — variables dérivées et médicales à fort signal
 - **Modèles & Évaluation** — comparaison des 3 modèles, courbes ROC et Precision-Recall
 - **Démo** — prédiction interactive du risque NICU à partir d'un profil maternel
+- **Limites** — contraintes du dataset, périmètre d'utilisation, perspectives

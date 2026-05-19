@@ -233,9 +233,9 @@ Le RF domine sur le F-beta β=2 (0.350), métrique de sélection. Le HGB obtient
 
 **Type de graphique** : deux diagrammes en barres horizontales côte à côte — top 10 par recall (gauche) et top 10 par F1-score (droite), sur un sous-échantillon stratifié de 8 000 observations post-SMOTE.
 
-**Interprétation** : les résultats LazyPredict confirment que les modèles de type forêt aléatoire et gradient boosting dominent les classifieurs linéaires sur ce dataset, validant le choix des modèles 2 et 3. Aucun classifieur inattendu (ex : SVM, KNN) ne surpasse RF ou HGB de manière significative sur le recall, ce qui aurait pu motiver un 4e modèle.
+**Interprétation** : les résultats LazyPredict (sans SMOTE ni threshold tuning, seuil par défaut 0.5) montrent que **RF est confirmé parmi les meilleurs classifieurs non-linéaires** (top 5 par recall). Le DummyClassifier arrive en tête — artefact dû au fait que le "recall" LazyPredict correspond à l'accuracy au seuil 0.5 (91% = classe majoritaire). SVC (#2) est écarté : ne scale pas sur 145k observations post-SMOTE. BaggingClassifier et ExtraTreesClassifier (#3–4) sont des variantes inférieures de RF. HistGBM n'apparaît pas dans le top 10 sur ce benchmark — son choix est validé par ses résultats finaux (recall=0.698, F-beta=0.337) et la progression méthodologique LR → RF → HGB.
 
-**Pertinence** : LazyPredict est une étape de validation méthodologique — il donne confiance dans les choix de modèles sans nécessiter de tuning exhaustif de toutes les alternatives. C'est un filet de sécurité contre le biais de sélection.
+**Pertinence** : LazyPredict confirme que les familles non-linéaires surpassent les modèles linéaires, validant le rejet de LR comme modèle unique. C'est un filet de sécurité méthodologique — pas un outil de sélection finale.
 
 ---
 
